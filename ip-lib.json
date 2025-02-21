@@ -802,6 +802,7 @@
                     "name": "io_oe",
                     "port": "io_oe",
                     "direction": "output",
+                    "output_control": true,
                     "width": 8,
                     "description": "GPIOs output enable"
                 }
@@ -2556,6 +2557,7 @@
                     "name": "scl_oen_o",
                     "port": "scl_oen_o",
                     "direction": "output",
+                    "output_control": true,
                     "width": 1,
                     "description": "i2c scl (Serial Clock) output enable"
                 },
