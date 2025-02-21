@@ -1,0 +1,3826 @@
+{
+    "slaves": [
+        {
+            "info": {
+                "name": "EF_UART",
+                "description": "UART, or universal asynchronous receiver-transmitter, is one of the most used device-to-device communication protocols. A UART enables two devices to exchange data serially without sharing the clock in a frame oriented way. The frame consists of a start bit, a number of data bits (typically one byte), a parity bit (optional) and 1-2 stop bits.\nEF_UART is a Soft IP with the following features:\n- A configurable frame format\n  - Data bits could vary from 5 to 9 bits\n  - Even, odd, stick, or no-parity bit generation/detection\n  - One or Two stop bit generation\n- Line-break detection\n- Configurable receiver timeout\n- Loopback capability for testing/debugging\n- Glitch Filter on the RX pin when enabled.\n- Matching received data detection\n- 16-byte TX and RX FIFOs with programmable thresholds\n- 16-bit prescaler (PR) for programmable baud rate generation\n- Ten Interrupt Sources:\n  + RX FIFO is full\n  + TX FIFO is empty\n  + RX FIFO level is above the set threshold\n  + TX FIFO level is below the set threshold\n  + Line break detection\n  + Receiver data match\n  + Frame Error\n  + Parity Error\n  + Overrun\n  + Receiver timeout\n",
+                "repo": "https://github.com/efabless/EF_UART.git",
+                "owner": "Efabless Corp.",
+                "license": "APACHE 2.0",
+                "author": "Efabless Corp.",
+                "email": "ip_admin@efabless.com",
+                "version": "v1.3.0",
+                "date": "09-02-2025",
+                "category": "digital",
+                "tags": [
+                    "peripheral",
+                    "UART",
+                    "serial"
+                ],
+                "bus": [
+                    "generic"
+                ],
+                "type": "soft",
+                "status": "verified",
+                "cell_count": [
+                    {
+                        "IP": 1590
+                    },
+                    {
+                        "APB": 1943
+                    },
+                    {
+                        "AHBL": 1973
+                    },
+                    {
+                        "WB": 2170
+                    }
+                ],
+                "width\"": "0.0",
+                "height\"": "0.0",
+                "technology": "n/a",
+                "clock_freq_mhz": [
+                    {
+                        "IP": 277
+                    },
+                    {
+                        "APB": 208
+                    },
+                    {
+                        "AHBL": 250
+                    },
+                    {
+                        "WB": 83
+                    }
+                ],
+                "digital_supply_voltage": "n/a",
+                "analog_supply_voltage": "n/a",
+                "irq_reg_offset": 65280,
+                "fifo_reg_offset": 65024
+            },
+            "parameters": [
+                {
+                    "name": "SC",
+                    "default": 8,
+                    "description": "Number of samples per bit/baud"
+                },
+                {
+                    "name": "MDW",
+                    "default": 9,
+                    "description": "Max data size/width"
+                },
+                {
+                    "name": "GFLEN",
+                    "default": 8,
+                    "description": "Length (number of stages) of the glitch filter"
+                },
+                {
+                    "name": "FAW",
+                    "default": 4,
+                    "description": "FIFO Address width; Depth=2^AW"
+                }
+            ],
+            "ports": [
+                {
+                    "name": "prescaler",
+                    "width": 16,
+                    "direction": "input",
+                    "description": "Prescaler used to determine the baud rate."
+                },
+                {
+                    "name": "en",
+                    "width": 1,
+                    "direction": "input",
+                    "description": "Enable for UART"
+                },
+                {
+                    "name": "tx_en",
+                    "width": 1,
+                    "direction": "input",
+                    "description": "Enable for UART transmission"
+                },
+                {
+                    "name": "rx_en",
+                    "width": 1,
+                    "direction": "input",
+                    "description": "Enable for UART receiving"
+                },
+                {
+                    "name": "wdata",
+                    "width": "MDW",
+                    "direction": "input",
+                    "description": "Transmission data"
+                },
+                {
+                    "name": "timeout_bits",
+                    "width": 6,
+                    "direction": "input",
+                    "description": "Receiver Timeout measured in number of bits."
+                },
+                {
+                    "name": "loopback_en",
+                    "width": 1,
+                    "direction": "input",
+                    "description": "Loopback enable; connect tx to the rx"
+                },
+                {
+                    "name": "glitch_filter_en",
+                    "width": 1,
+                    "direction": "input",
+                    "description": "UART Glitch Filter on RX enable"
+                },
+                {
+                    "name": "tx_level",
+                    "width": "FAW",
+                    "direction": "output",
+                    "description": "The current level of TX FIFO"
+                },
+                {
+                    "name": "rx_level",
+                    "width": "FAW",
+                    "direction": "output",
+                    "description": "The current level of RX FIFO"
+                },
+                {
+                    "name": "rd",
+                    "width": 1,
+                    "direction": "input",
+                    "description": "Read from RX FIFO signal"
+                },
+                {
+                    "name": "wr",
+                    "width": 1,
+                    "direction": "input",
+                    "description": "Write to TX FIFO signal"
+                },
+                {
+                    "name": "tx_fifo_flush",
+                    "width": 1,
+                    "direction": "input",
+                    "description": "Flushes the TX FIFO."
+                },
+                {
+                    "name": "rx_fifo_flush",
+                    "width": 1,
+                    "direction": "input",
+                    "description": "Flushes the RX FIFO."
+                },
+                {
+                    "name": "data_size",
+                    "width": 4,
+                    "direction": "input",
+                    "description": "Number of data bits in the frame"
+                },
+                {
+                    "name": "stop_bits_count",
+                    "width": 1,
+                    "direction": "input",
+                    "description": "Number of stop bits in the frame (could be 1 or 2)"
+                },
+                {
+                    "name": "parity_type",
+                    "width": 3,
+                    "direction": "input",
+                    "description": "Type of Parity in the frame"
+                },
+                {
+                    "name": "txfifotr",
+                    "width": "FAW",
+                    "direction": "input",
+                    "description": "TX FIFO Threshold"
+                },
+                {
+                    "name": "rxfifotr",
+                    "width": "FAW",
+                    "direction": "input",
+                    "description": "RX FIFO Threshold"
+                },
+                {
+                    "name": "match_data",
+                    "width": "MDW",
+                    "direction": "input",
+                    "description": "Match data (match flag would be raised if it matches what is received)"
+                },
+                {
+                    "name": "tx_empty",
+                    "width": 1,
+                    "direction": "output",
+                    "description": "TX empty flag"
+                },
+                {
+                    "name": "tx_full",
+                    "width": 1,
+                    "direction": "output",
+                    "description": "TX full flag"
+                },
+                {
+                    "name": "tx_level_below",
+                    "width": 1,
+                    "direction": "output",
+                    "description": "TX level below flag"
+                },
+                {
+                    "name": "rdata",
+                    "width": "MDW",
+                    "direction": "output",
+                    "description": "Received Data"
+                },
+                {
+                    "name": "rx_empty",
+                    "width": 1,
+                    "direction": "output",
+                    "description": "RX empty flag"
+                },
+                {
+                    "name": "rx_full",
+                    "width": 1,
+                    "direction": "output",
+                    "description": "RX full flag"
+                },
+                {
+                    "name": "rx_level_above",
+                    "width": 1,
+                    "direction": "output",
+                    "description": "RX level above flag"
+                },
+                {
+                    "name": "break_flag",
+                    "width": 1,
+                    "direction": "output",
+                    "description": "Break flag"
+                },
+                {
+                    "name": "match_flag",
+                    "width": 1,
+                    "direction": "output",
+                    "description": "Match flag"
+                },
+                {
+                    "name": "frame_error_flag",
+                    "width": 1,
+                    "direction": "output",
+                    "description": "Frame error flag"
+                },
+                {
+                    "name": "parity_error_flag",
+                    "width": 1,
+                    "direction": "output",
+                    "description": "Parity error flag"
+                },
+                {
+                    "name": "overrun_flag",
+                    "width": 1,
+                    "direction": "output",
+                    "description": "Overrun flag"
+                },
+                {
+                    "name": "timeout_flag",
+                    "width": 1,
+                    "direction": "output",
+                    "description": "Timeout flag"
+                }
+            ],
+            "external_interface": [
+                {
+                    "name": "rx",
+                    "port": "rx",
+                    "direction": "input",
+                    "description": "This is the receive line where the UART device receives data from another device. It carries the incoming data signals.",
+                    "width": 1
+                },
+                {
+                    "name": "tx",
+                    "port": "tx",
+                    "direction": "output",
+                    "width": 1,
+                    "description": "This is the transmission line where the UART device sends data to another device. It carries the outgoing data signals."
+                }
+            ],
+            "clock": {
+                "name": "clk",
+                "gated": "yes"
+            },
+            "reset": {
+                "name": "rst_n",
+                "level": 0
+            },
+            "registers": [
+                {
+                    "name": "RXDATA",
+                    "size": "MDW",
+                    "mode": "r",
+                    "fifo": true,
+                    "offset": 0,
+                    "bit_access": false,
+                    "read_port": "rdata",
+                    "description": "RX Data register; the interface to the Receive FIFO."
+                },
+                {
+                    "name": "TXDATA",
+                    "size": "MDW",
+                    "mode": "w",
+                    "fifo": true,
+                    "offset": 4,
+                    "bit_access": false,
+                    "write_port": "wdata",
+                    "description": "TX Data register; ; the interface to the Receive FIFO."
+                },
+                {
+                    "name": "PR",
+                    "size": 16,
+                    "mode": "w",
+                    "fifo": false,
+                    "offset": 8,
+                    "bit_access": false,
+                    "write_port": "prescaler",
+                    "description": "The Prescaler register; used to determine the baud rate. $baud_rate = clock_freq/((PR+1)*SC)$. SC (the number of samples per bit/baud) is a module parameter with a default value of 8."
+                },
+                {
+                    "name": "CTRL",
+                    "size": 5,
+                    "mode": "w",
+                    "fifo": false,
+                    "offset": 12,
+                    "bit_access": false,
+                    "description": "UART Control Register",
+                    "fields": [
+                        {
+                            "name": "en",
+                            "bit_offset": 0,
+                            "bit_width": 1,
+                            "write_port": "en",
+                            "description": "UART enable"
+                        },
+                        {
+                            "name": "txen",
+                            "bit_offset": 1,
+                            "bit_width": 1,
+                            "write_port": "tx_en",
+                            "description": "UART Transmitter enable"
+                        },
+                        {
+                            "name": "rxen",
+                            "bit_offset": 2,
+                            "bit_width": 1,
+                            "write_port": "rx_en",
+                            "description": "UART Receiver enable"
+                        },
+                        {
+                            "name": "lpen",
+                            "bit_offset": 3,
+                            "bit_width": 1,
+                            "write_port": "loopback_en",
+                            "description": "Loopback (connect RX and TX pins together) enable"
+                        },
+                        {
+                            "name": "gfen",
+                            "bit_offset": 4,
+                            "bit_width": 1,
+                            "write_port": "glitch_filter_en",
+                            "description": "UART Glitch Filter on RX enable (Note: glitch filter is only functional when PR > 0)"
+                        }
+                    ]
+                },
+                {
+                    "name": "CFG",
+                    "size": 14,
+                    "mode": "w",
+                    "fifo": false,
+                    "offset": 16,
+                    "bit_access": false,
+                    "init": "'h3F08",
+                    "description": "UART Configuration Register",
+                    "fields": [
+                        {
+                            "name": "wlen",
+                            "bit_offset": 0,
+                            "bit_width": 4,
+                            "write_port": "data_size",
+                            "description": "Data word length: 5-9 bits"
+                        },
+                        {
+                            "name": "stp2",
+                            "bit_offset": 4,
+                            "bit_width": 1,
+                            "write_port": "stop_bits_count",
+                            "description": "Two Stop Bits Select"
+                        },
+                        {
+                            "name": "parity",
+                            "bit_offset": 5,
+                            "bit_width": 3,
+                            "write_port": "parity_type",
+                            "description": "Parity Type: 000: None, 001: odd, 010: even, 100: Sticky 0, 101: Sticky 1"
+                        },
+                        {
+                            "name": "timeout",
+                            "bit_offset": 8,
+                            "bit_width": 6,
+                            "write_port": "timeout_bits",
+                            "description": "Receiver Timeout measured in number of bits"
+                        }
+                    ]
+                },
+                {
+                    "name": "MATCH",
+                    "size": "MDW",
+                    "mode": "w",
+                    "fifo": false,
+                    "offset": 28,
+                    "bit_access": false,
+                    "write_port": "match_data",
+                    "description": "Match Register"
+                }
+            ],
+            "flags": [
+                {
+                    "name": "TXE",
+                    "port": "tx_empty",
+                    "description": "Transmit FIFO is Empty."
+                },
+                {
+                    "name": "RXF",
+                    "port": "rx_full",
+                    "description": "Receive FIFO is Full."
+                },
+                {
+                    "name": "TXB",
+                    "port": "tx_level_below",
+                    "description": "Transmit FIFO level is Below Threshold."
+                },
+                {
+                    "name": "RXA",
+                    "port": "rx_level_above",
+                    "description": "Receive FIFO level is Above Threshold."
+                },
+                {
+                    "name": "BRK",
+                    "port": "break_flag",
+                    "description": "Line Break; 13 consecutive 0's have been detected on the line."
+                },
+                {
+                    "name": "MATCH",
+                    "port": "match_flag",
+                    "description": "Match; the received data matches the MATCH register."
+                },
+                {
+                    "name": "FE",
+                    "port": "frame_error_flag",
+                    "description": "Framing Error; the receiver does not see a \"stop\" bit at the expected \"stop\" bit time."
+                },
+                {
+                    "name": "PRE",
+                    "port": "parity_error_flag",
+                    "description": "Parity Error; the receiver calculated parity does not match the received one."
+                },
+                {
+                    "name": "OR",
+                    "port": "overrun_flag",
+                    "description": "Overrun; data has been received but the RX FIFO is full."
+                },
+                {
+                    "name": "RTO",
+                    "port": "timeout_flag",
+                    "description": "Receiver Timeout; no data has been received for the time of a specified number of bits."
+                }
+            ],
+            "fifos": [
+                {
+                    "name": "RX_FIFO",
+                    "type": "read",
+                    "width": "MDW",
+                    "address_width": "FAW",
+                    "register": "RXDATA",
+                    "data_port": "rdata",
+                    "control_port": "rd",
+                    "flush_enable": true,
+                    "flush_port": "rx_fifo_flush",
+                    "threshold_port": "rxfifotr",
+                    "level_port": "rx_level"
+                },
+                {
+                    "name": "TX_FIFO",
+                    "type": "write",
+                    "width": "MDW",
+                    "address_width": "FAW",
+                    "register": "TXDATA",
+                    "data_port": "wdata",
+                    "control_port": "wr",
+                    "flush_enable": true,
+                    "flush_port": "tx_fifo_flush",
+                    "threshold_port": "txfifotr",
+                    "level_port": "tx_level"
+                }
+            ]
+        },
+        {
+            "info": {
+                "name": "EF_GPIO8",
+                "description": "A generic 8-bit General Purpose I/O (GPIO) Peripheral with the following features\n\n- Eight bidirectional pins.\n- Input synchronizers\n- Input edge detectors.\n- Direction control.\n- Edge and Level Interrupts generation per pin.\n- Wrappers for AHB-Lite, APB and WB buses.\n",
+                "repo": "github.com/efabless/EF_GPIO8",
+                "owner": "Efabless Corp.",
+                "license": "APACHE 2.0",
+                "author": "Efabless Corp.",
+                "email": "ip_admin@efabless.com",
+                "version": "v1.1.0",
+                "date": "23-01-2025",
+                "category": "digital",
+                "tags": [
+                    "peripheral",
+                    "GPIO"
+                ],
+                "bus": [
+                    "generic"
+                ],
+                "type": "soft",
+                "status": "verified",
+                "cell_count": [
+                    {
+                        "IP": 72
+                    },
+                    {
+                        "APB": 476
+                    },
+                    {
+                        "AHBL": 493
+                    },
+                    {
+                        "WB": 574
+                    }
+                ],
+                "width": "0.0",
+                "height": "0.0",
+                "technology": "n/a",
+                "clock_freq_mhz": [
+                    {
+                        "IP": 1666
+                    },
+                    {
+                        "APB": 1250
+                    },
+                    {
+                        "AHBL": 294
+                    },
+                    {
+                        "WB": 588
+                    }
+                ],
+                "digital_supply_voltage": "n/a",
+                "analog_supply_voltage": "n/a",
+                "irq_reg_offset": 65280,
+                "fifo_reg_offset": 65024,
+                "firmware_guidelines": "1. Write to the direction register the direction of the GPIOs where 1 means gpio is output and 0 gpio is input\n2. To drive a gpio pin, write to the ``DATAO`` register\n3. To read the value of a gpio pin , read from the ``DATAI`` register \n"
+            },
+            "ports": [
+                {
+                    "name": "bus_in",
+                    "width": 8,
+                    "direction": "output",
+                    "description": "Synchronized GPIOs input connected to the bus (it drives the DATAI register)"
+                },
+                {
+                    "name": "bus_out",
+                    "width": 8,
+                    "direction": "input",
+                    "description": "GPIOs output connected to the bus (it's driven by writing to DATAO register)"
+                },
+                {
+                    "name": "bus_oe",
+                    "width": 8,
+                    "direction": "input",
+                    "description": "GPIOs output enable connected to the bus (it's driven by writing to DIR register)"
+                },
+                {
+                    "name": "pin0_hi",
+                    "width": 1,
+                    "direction": "output",
+                    "description": "Pin 0 high flag"
+                },
+                {
+                    "name": "pin1_hi",
+                    "width": 1,
+                    "direction": "output",
+                    "description": "Pin 1 high flag"
+                },
+                {
+                    "name": "pin2_hi",
+                    "width": 1,
+                    "direction": "output",
+                    "description": "Pin 2 high flag"
+                },
+                {
+                    "name": "pin3_hi",
+                    "width": 1,
+                    "direction": "output",
+                    "description": "Pin 3 high flag"
+                },
+                {
+                    "name": "pin4_hi",
+                    "width": 1,
+                    "direction": "output",
+                    "description": "Pin 4 high flag"
+                },
+                {
+                    "name": "pin5_hi",
+                    "width": 1,
+                    "direction": "output",
+                    "description": "Pin 5 high flag"
+                },
+                {
+                    "name": "pin6_hi",
+                    "width": 1,
+                    "direction": "output",
+                    "description": "Pin 6 high flag"
+                },
+                {
+                    "name": "pin7_hi",
+                    "width": 1,
+                    "direction": "output",
+                    "description": "Pin 7 high flag"
+                },
+                {
+                    "name": "pin0_lo",
+                    "width": 1,
+                    "direction": "output",
+                    "description": "Pin 0 low flag"
+                },
+                {
+                    "name": "pin1_lo",
+                    "width": 1,
+                    "direction": "output",
+                    "description": "Pin 1 low flag"
+                },
+                {
+                    "name": "pin2_lo",
+                    "width": 1,
+                    "direction": "output",
+                    "description": "Pin 2 low flag"
+                },
+                {
+                    "name": "pin3_lo",
+                    "width": 1,
+                    "direction": "output",
+                    "description": "Pin 3 low flag"
+                },
+                {
+                    "name": "pin4_lo",
+                    "width": 1,
+                    "direction": "output",
+                    "description": "Pin 4 low flag"
+                },
+                {
+                    "name": "pin5_lo",
+                    "width": 1,
+                    "direction": "output",
+                    "description": "Pin 5 low flag"
+                },
+                {
+                    "name": "pin6_lo",
+                    "width": 1,
+                    "direction": "output",
+                    "description": "Pin 6 low flag"
+                },
+                {
+                    "name": "pin7_lo",
+                    "width": 1,
+                    "direction": "output",
+                    "description": "Pin 7 low flag"
+                },
+                {
+                    "name": "pin0_pe",
+                    "width": 1,
+                    "direction": "output",
+                    "description": "Pin 0 positive edge flag"
+                },
+                {
+                    "name": "pin1_pe",
+                    "width": 1,
+                    "direction": "output",
+                    "description": "Pin 1 positive edge flag"
+                },
+                {
+                    "name": "pin2_pe",
+                    "width": 1,
+                    "direction": "output",
+                    "description": "Pin 2 positive edge flag"
+                },
+                {
+                    "name": "pin3_pe",
+                    "width": 1,
+                    "direction": "output",
+                    "description": "Pin 3 positive edge flag"
+                },
+                {
+                    "name": "pin4_pe",
+                    "width": 1,
+                    "direction": "output",
+                    "description": "Pin 4 positive edge flag"
+                },
+                {
+                    "name": "pin5_pe",
+                    "width": 1,
+                    "direction": "output",
+                    "description": "Pin 5 positive edge flag"
+                },
+                {
+                    "name": "pin6_pe",
+                    "width": 1,
+                    "direction": "output",
+                    "description": "Pin 6 positive edge flag"
+                },
+                {
+                    "name": "pin7_pe",
+                    "width": 1,
+                    "direction": "output",
+                    "description": "Pin 7 positive edge flag"
+                },
+                {
+                    "name": "pin0_ne",
+                    "width": 1,
+                    "direction": "output",
+                    "description": "Pin 0 negative edge flag"
+                },
+                {
+                    "name": "pin1_ne",
+                    "width": 1,
+                    "direction": "output",
+                    "description": "Pin 1 negative edge flag"
+                },
+                {
+                    "name": "pin2_ne",
+                    "width": 1,
+                    "direction": "output",
+                    "description": "Pin 2 negative edge flag"
+                },
+                {
+                    "name": "pin3_ne",
+                    "width": 1,
+                    "direction": "output",
+                    "description": "Pin 3 negative edge flag"
+                },
+                {
+                    "name": "pin4_ne",
+                    "width": 1,
+                    "direction": "output",
+                    "description": "Pin 4 negative edge flag"
+                },
+                {
+                    "name": "pin5_ne",
+                    "width": 1,
+                    "direction": "output",
+                    "description": "Pin 5 negative edge flag"
+                },
+                {
+                    "name": "pin6_ne",
+                    "width": 1,
+                    "direction": "output",
+                    "description": "Pin 6 negative edge flag"
+                },
+                {
+                    "name": "pin7_ne",
+                    "width": 1,
+                    "direction": "output",
+                    "description": "Pin 7 negative edge flag"
+                }
+            ],
+            "external_interface": [
+                {
+                    "name": "io_in",
+                    "port": "io_in",
+                    "direction": "input",
+                    "width": 8,
+                    "description": "GPIOs input"
+                },
+                {
+                    "name": "io_out",
+                    "port": "io_out",
+                    "direction": "output",
+                    "width": 8,
+                    "description": "GPIOs output"
+                },
+                {
+                    "name": "io_oe",
+                    "port": "io_oe",
+                    "direction": "output",
+                    "width": 8,
+                    "description": "GPIOs output enable"
+                }
+            ],
+            "clock": {
+                "name": "clk",
+                "gated": "yes"
+            },
+            "reset": {
+                "name": "rst_n",
+                "level": 0
+            },
+            "registers": [
+                {
+                    "name": "DATAI",
+                    "size": 8,
+                    "mode": "r",
+                    "fifo": false,
+                    "offset": 0,
+                    "bit_access": false,
+                    "read_port": "bus_in",
+                    "description": "Data In Register; Reading from this register returns the pins status (8 pins); one bit per pin"
+                },
+                {
+                    "name": "DATAO",
+                    "size": 8,
+                    "mode": "w",
+                    "fifo": false,
+                    "offset": 4,
+                    "bit_access": false,
+                    "write_port": "bus_out",
+                    "description": "Data Out Register; Writing to this register change the status of the port pins (8 pins); one bit per pin"
+                },
+                {
+                    "name": "DIR",
+                    "size": 8,
+                    "mode": "w",
+                    "fifo": false,
+                    "offset": 8,
+                    "bit_access": false,
+                    "write_port": "bus_oe",
+                    "description": "Direction Register; One bit per pin 1: output, 0: input"
+                }
+            ],
+            "flags": [
+                {
+                    "name": "P0HI",
+                    "port": "pin0_hi",
+                    "description": "Pin 0 is high"
+                },
+                {
+                    "name": "P1HI",
+                    "port": "pin1_hi",
+                    "description": "Pin 1 is high"
+                },
+                {
+                    "name": "P2HI",
+                    "port": "pin2_hi",
+                    "description": "Pin 2 is high"
+                },
+                {
+                    "name": "P3HI",
+                    "port": "pin3_hi",
+                    "description": "Pin 3 is high"
+                },
+                {
+                    "name": "P4HI",
+                    "port": "pin4_hi",
+                    "description": "Pin 4 is high"
+                },
+                {
+                    "name": "P5HI",
+                    "port": "pin5_hi",
+                    "description": "Pin 5 is high"
+                },
+                {
+                    "name": "P6HI",
+                    "port": "pin6_hi",
+                    "description": "Pin 6 is high"
+                },
+                {
+                    "name": "P7HI",
+                    "port": "pin7_hi",
+                    "description": "Pin 7 is high"
+                },
+                {
+                    "name": "P0LO",
+                    "port": "pin0_lo",
+                    "description": "Pin 0 is low"
+                },
+                {
+                    "name": "P1LO",
+                    "port": "pin1_lo",
+                    "description": "Pin 1 is low"
+                },
+                {
+                    "name": "P2LO",
+                    "port": "pin2_lo",
+                    "description": "Pin 2 is low"
+                },
+                {
+                    "name": "P3LO",
+                    "port": "pin3_lo",
+                    "description": "Pin 3 is low"
+                },
+                {
+                    "name": "P4LO",
+                    "port": "pin4_lo",
+                    "description": "Pin 4 is low"
+                },
+                {
+                    "name": "P5LO",
+                    "port": "pin5_lo",
+                    "description": "Pin 5 is low"
+                },
+                {
+                    "name": "P6LO",
+                    "port": "pin6_lo",
+                    "description": "Pin 6 is low"
+                },
+                {
+                    "name": "P7LO",
+                    "port": "pin7_lo",
+                    "description": "Pin 7 is low"
+                },
+                {
+                    "name": "P0PE",
+                    "port": "pin0_pe",
+                    "description": "Pin 0 has observed a rising edge"
+                },
+                {
+                    "name": "P1PE",
+                    "port": "pin1_pe",
+                    "description": "Pin 1 has observed a rising edge"
+                },
+                {
+                    "name": "P2PE",
+                    "port": "pin2_pe",
+                    "description": "Pin 2 has observed a rising edge"
+                },
+                {
+                    "name": "P3PE",
+                    "port": "pin3_pe",
+                    "description": "Pin 3 has observed a rising edge"
+                },
+                {
+                    "name": "P4PE",
+                    "port": "pin4_pe",
+                    "description": "Pin 4 has observed a rising edge"
+                },
+                {
+                    "name": "P5PE",
+                    "port": "pin5_pe",
+                    "description": "Pin 5 has observed a rising edge"
+                },
+                {
+                    "name": "P6PE",
+                    "port": "pin6_pe",
+                    "description": "Pin 6 has observed a rising edge"
+                },
+                {
+                    "name": "P7PE",
+                    "port": "pin7_pe",
+                    "description": "Pin 7 has observed a rising edge"
+                },
+                {
+                    "name": "P0NE",
+                    "port": "pin0_ne",
+                    "description": "Pin 0 has observed a falling edge"
+                },
+                {
+                    "name": "P1NE",
+                    "port": "pin1_ne",
+                    "description": "Pin 1 has observed a falling edge"
+                },
+                {
+                    "name": "P2NE",
+                    "port": "pin2_ne",
+                    "description": "Pin 2 has observed a falling edge"
+                },
+                {
+                    "name": "P3NE",
+                    "port": "pin3_ne",
+                    "description": "Pin 3 has observed a falling edge"
+                },
+                {
+                    "name": "P4NE",
+                    "port": "pin4_ne",
+                    "description": "Pin 4 has observed a falling edge"
+                },
+                {
+                    "name": "P5NE",
+                    "port": "pin5_ne",
+                    "description": "Pin 5 has observed a falling edge"
+                },
+                {
+                    "name": "P6NE",
+                    "port": "pin6_ne",
+                    "description": "Pin 6 has observed a falling edge"
+                },
+                {
+                    "name": "P7NE",
+                    "port": "pin7_ne",
+                    "description": "Pin 7 has observed a falling edge"
+                }
+            ]
+        },
+        {
+            "info": {
+                "name": "EF_AES",
+                "description": "APB, AHBL and wishbone wrappers for the symmetric block cipher AES (Advanced Encryption Standard) which is implemented in Verilog in the [secworks/aes](https://github.com/secworks/aes/tree/master) repository.",
+                "repo": "github.com/efabless/EF_AES",
+                "owner": "Efabless Corp.",
+                "license": "Apache 2.0",
+                "author": "Efabless Corp.",
+                "email": "ip_admin@efabless.com",
+                "version": "v1.1.0",
+                "date": "23-01-2025",
+                "category": "digital",
+                "tags": [
+                    "accelerator",
+                    "AES",
+                    "security"
+                ],
+                "bus": [
+                    "generic"
+                ],
+                "type": "soft",
+                "status": "verified",
+                "cell_count": [
+                    {
+                        "IP": "TBD"
+                    },
+                    {
+                        "APB": "TBD"
+                    },
+                    {
+                        "AHBL": "TBD"
+                    },
+                    {
+                        "WB": "TBD"
+                    }
+                ],
+                "width": "0.0",
+                "height": "0.0",
+                "technology": "n/a",
+                "clock_freq_mhz": [
+                    {
+                        "IP": "TBD"
+                    },
+                    {
+                        "APB": "TBD"
+                    },
+                    {
+                        "AHBL": "TBD"
+                    },
+                    {
+                        "WB": "TBD"
+                    }
+                ],
+                "digital_supply_voltage": "n/a",
+                "analog_supply_voltage": "n/a",
+                "irq_reg_offset": 65280,
+                "fifo_reg_offset": 65024
+            },
+            "ports": [
+                {
+                    "name": "encdec",
+                    "width": 1,
+                    "direction": "input",
+                    "description": "Encipher/Decipher control"
+                },
+                {
+                    "name": "init",
+                    "width": 1,
+                    "direction": "input",
+                    "description": "Initial bit"
+                },
+                {
+                    "name": "next",
+                    "width": 1,
+                    "direction": "input",
+                    "description": "Next bit"
+                },
+                {
+                    "name": "ready",
+                    "width": 1,
+                    "direction": "input",
+                    "description": "ready to start"
+                },
+                {
+                    "name": "key",
+                    "width": 256,
+                    "direction": "input",
+                    "description": "key value"
+                },
+                {
+                    "name": "keylen",
+                    "width": 1,
+                    "direction": "input",
+                    "description": "key length 128 or 256"
+                },
+                {
+                    "name": "block",
+                    "width": 128,
+                    "direction": "input",
+                    "description": "block value"
+                },
+                {
+                    "name": "result",
+                    "width": 128,
+                    "direction": "output",
+                    "description": "result value"
+                },
+                {
+                    "name": "result_valid",
+                    "width": 1,
+                    "direction": "output",
+                    "description": "result is valid"
+                }
+            ],
+            "registers": [
+                {
+                    "name": "STATUS",
+                    "size": 8,
+                    "mode": "r",
+                    "fifo": false,
+                    "offset": 0,
+                    "bit_access": false,
+                    "description": "Status register bit 6: ready , bit 7: valid",
+                    "fields": [
+                        {
+                            "name": "ready_reg",
+                            "bit_offset": 6,
+                            "bit_width": 1,
+                            "read_port": "ready",
+                            "description": "Ready to start"
+                        },
+                        {
+                            "name": "valid_reg",
+                            "bit_offset": 7,
+                            "bit_width": 1,
+                            "read_port": "result_valid",
+                            "description": "Result is valid"
+                        }
+                    ]
+                },
+                {
+                    "name": "CTRL",
+                    "size": 8,
+                    "mode": "w",
+                    "fifo": false,
+                    "offset": 4,
+                    "bit_access": false,
+                    "description": "Control register bit 0: Initial bit (init), bit 1: Next bit , bit 2: Encipher/Decipher control, bit 3: Key length control",
+                    "fields": [
+                        {
+                            "name": "init_reg",
+                            "bit_offset": 0,
+                            "bit_width": 1,
+                            "write_port": "init",
+                            "description": "Initial bit"
+                        },
+                        {
+                            "name": "next_reg",
+                            "bit_offset": 1,
+                            "bit_width": 1,
+                            "write_port": "next",
+                            "description": "Next bit"
+                        },
+                        {
+                            "name": "encdec_reg",
+                            "bit_offset": 2,
+                            "bit_width": 1,
+                            "write_port": "encdec",
+                            "description": "Encipher/Decipher control (\u201c0\u201d means Decipher \u201c1\u201d means Encipher)"
+                        },
+                        {
+                            "name": "keylen_reg",
+                            "bit_offset": 3,
+                            "bit_width": 1,
+                            "write_port": "keylen",
+                            "description": "Key length control (\u201c0\u201d means 128 bit key length \u201c1\u201d means 256 bit key length\")"
+                        }
+                    ]
+                },
+                {
+                    "name": "KEY0",
+                    "size": 32,
+                    "mode": "w",
+                    "fifo": false,
+                    "offset": 8,
+                    "bit_access": false,
+                    "write_port": "key[31:0]",
+                    "description": "Contains the bits 31-0 of the input key value"
+                },
+                {
+                    "name": "KEY1",
+                    "size": 32,
+                    "mode": "w",
+                    "fifo": false,
+                    "offset": 12,
+                    "bit_access": false,
+                    "write_port": "key[63:32]",
+                    "description": "Contains the bits 63-32 of the input key value"
+                },
+                {
+                    "name": "KEY2",
+                    "size": 32,
+                    "mode": "w",
+                    "fifo": false,
+                    "offset": 16,
+                    "bit_access": false,
+                    "write_port": "key[95:64]",
+                    "description": "Contains the bits 95-64 of the input key value"
+                },
+                {
+                    "name": "KEY3",
+                    "size": 32,
+                    "mode": "w",
+                    "fifo": false,
+                    "offset": 20,
+                    "bit_access": false,
+                    "write_port": "key[127:96]",
+                    "description": "Contains the bits 127-96 of the input key value"
+                },
+                {
+                    "name": "KEY4",
+                    "size": 32,
+                    "mode": "w",
+                    "fifo": false,
+                    "offset": 24,
+                    "bit_access": false,
+                    "write_port": "key[159:128]",
+                    "description": "Contains the bits 159-128 of the input key value"
+                },
+                {
+                    "name": "KEY5",
+                    "size": 32,
+                    "mode": "w",
+                    "fifo": false,
+                    "offset": 28,
+                    "bit_access": false,
+                    "write_port": "key[191:160]",
+                    "description": "Contains the bits 191-160 of the input key value"
+                },
+                {
+                    "name": "KEY6",
+                    "size": 32,
+                    "mode": "w",
+                    "fifo": false,
+                    "offset": 32,
+                    "bit_access": false,
+                    "write_port": "key[223:192]",
+                    "description": "Contains the bits 223-192 of the input key value"
+                },
+                {
+                    "name": "KEY7",
+                    "size": 32,
+                    "mode": "w",
+                    "fifo": false,
+                    "offset": 36,
+                    "bit_access": false,
+                    "write_port": "key[255:224]",
+                    "description": "Contains the bits 255-224 of the input key value"
+                },
+                {
+                    "name": "BLOCK0",
+                    "size": 32,
+                    "mode": "w",
+                    "fifo": false,
+                    "offset": 40,
+                    "bit_access": false,
+                    "write_port": "block[31:0]",
+                    "description": "Contains the bits 31-0 of the input block value"
+                },
+                {
+                    "name": "BLOCK1",
+                    "size": 32,
+                    "mode": "w",
+                    "fifo": false,
+                    "offset": 44,
+                    "bit_access": false,
+                    "write_port": "block[63:32]",
+                    "description": "Contains the bits 63-32 of the input block value"
+                },
+                {
+                    "name": "BLOCK2",
+                    "size": 32,
+                    "mode": "w",
+                    "fifo": false,
+                    "offset": 48,
+                    "bit_access": false,
+                    "write_port": "block[95:64]",
+                    "description": "Contains the bits 95-64 of the input block value"
+                },
+                {
+                    "name": "BLOCK3",
+                    "size": 32,
+                    "mode": "w",
+                    "fifo": false,
+                    "offset": 52,
+                    "bit_access": false,
+                    "write_port": "block[127:96]",
+                    "description": "Contains the bits 127-96 of the input block value"
+                },
+                {
+                    "name": "RESULT0",
+                    "size": 32,
+                    "mode": "w",
+                    "fifo": false,
+                    "offset": 56,
+                    "bit_access": false,
+                    "write_port": "result[31:0]",
+                    "description": "Contains the bits 31-0 of the input result value"
+                },
+                {
+                    "name": "RESULT1",
+                    "size": 32,
+                    "mode": "w",
+                    "fifo": false,
+                    "offset": 60,
+                    "bit_access": false,
+                    "write_port": "result[63:32]",
+                    "description": "Contains the bits 63-32 of the input result value"
+                },
+                {
+                    "name": "RESULT2",
+                    "size": 32,
+                    "mode": "w",
+                    "fifo": false,
+                    "offset": 64,
+                    "bit_access": false,
+                    "write_port": "result[95:64]",
+                    "description": "Contains the bits 95-64 of the input result value"
+                },
+                {
+                    "name": "RESULT3",
+                    "size": 32,
+                    "mode": "w",
+                    "fifo": false,
+                    "offset": 68,
+                    "bit_access": false,
+                    "write_port": "result[127:96]",
+                    "description": "Contains the bits 127-96 of the input result value"
+                }
+            ],
+            "clock": {
+                "name": "clk",
+                "gated": "yes"
+            },
+            "reset": {
+                "name": "reset_n",
+                "level": 0
+            },
+            "flags": [
+                {
+                    "name": "valid",
+                    "port": "result_valid",
+                    "description": "Result is valid"
+                },
+                {
+                    "name": "ready",
+                    "port": "ready",
+                    "description": "Ready to start"
+                }
+            ]
+        },
+        {
+            "info": {
+                "name": "EF_SHA256",
+                "description": "APB, AHBL and wishbone wrappers for the SHA-256 cryptographic hash function which is implemented in Verilog in the [secworks/sha256](https://github.com/secworks/sha256) repository.",
+                "repo": "github.com/efabless/SW_SHA256",
+                "owner": "Efabless Corp.",
+                "license": "Apache 2.0",
+                "author": "Efabless Corp.",
+                "email": "ip_admin@efabless.com",
+                "version": "v1.1.0",
+                "date": "23-01-2025",
+                "category": "digital",
+                "tags": [
+                    "accelerator",
+                    "SHA256",
+                    "security"
+                ],
+                "bus": [
+                    "generic"
+                ],
+                "type": "soft",
+                "status": "verified",
+                "cell_count": [
+                    {
+                        "IP": "TBD"
+                    },
+                    {
+                        "APB": "TBD"
+                    },
+                    {
+                        "AHBL": "TBD"
+                    },
+                    {
+                        "WB": "TBD"
+                    }
+                ],
+                "width": "0.0",
+                "height": "0.0",
+                "technology": "n/a",
+                "clock_freq_mhz": [
+                    {
+                        "IP": "TBD"
+                    },
+                    {
+                        "APB": "TBD"
+                    },
+                    {
+                        "AHBL": "TBD"
+                    },
+                    {
+                        "WB": "TBD"
+                    }
+                ],
+                "digital_supply_voltage": "n/a",
+                "analog_supply_voltage": "n/a",
+                "irq_reg_offset": 65280,
+                "fifo_reg_offset": 65024
+            },
+            "ports": [
+                {
+                    "name": "init",
+                    "width": 1,
+                    "direction": "input",
+                    "description": "Initial bit"
+                },
+                {
+                    "name": "next",
+                    "width": 1,
+                    "direction": "input",
+                    "description": "Next bit"
+                },
+                {
+                    "name": "mode",
+                    "width": 1,
+                    "direction": "input",
+                    "description": "Mode bit; '0' means SHA224 '1' means SHA256"
+                },
+                {
+                    "name": "block",
+                    "width": 512,
+                    "direction": "input",
+                    "description": "block value"
+                },
+                {
+                    "name": "ready",
+                    "width": 1,
+                    "direction": "output",
+                    "description": "ready to start"
+                },
+                {
+                    "name": "digest",
+                    "width": 256,
+                    "direction": "output",
+                    "description": "digest value"
+                },
+                {
+                    "name": "digest_valid",
+                    "width": 1,
+                    "direction": "output",
+                    "description": "digest is valid"
+                }
+            ],
+            "registers": [
+                {
+                    "name": "STATUS",
+                    "size": 8,
+                    "mode": "r",
+                    "fifo": false,
+                    "offset": 0,
+                    "bit_access": false,
+                    "description": "Status register bit 0: digest is valid , bit 1: ready",
+                    "fields": [
+                        {
+                            "name": "ready_reg",
+                            "bit_offset": 6,
+                            "bit_width": 1,
+                            "read_port": "ready",
+                            "description": "Ready to start"
+                        },
+                        {
+                            "name": "digest_valid_reg",
+                            "bit_offset": 7,
+                            "bit_width": 1,
+                            "read_port": "digest_valid",
+                            "description": "Digest is valid"
+                        }
+                    ]
+                },
+                {
+                    "name": "CTRL",
+                    "size": 3,
+                    "mode": "w",
+                    "fifo": false,
+                    "offset": 4,
+                    "bit_access": false,
+                    "description": "Control register bit 0: Initial bit (init) bit 1: Next bit , bit 2: Mode bit",
+                    "fields": [
+                        {
+                            "name": "init_reg",
+                            "bit_offset": 0,
+                            "bit_width": 1,
+                            "write_port": "init",
+                            "description": "Initial bit"
+                        },
+                        {
+                            "name": "next_reg",
+                            "bit_offset": 1,
+                            "bit_width": 1,
+                            "write_port": "next",
+                            "description": "Next bit"
+                        },
+                        {
+                            "name": "mode_reg",
+                            "bit_offset": 2,
+                            "bit_width": 1,
+                            "write_port": "mode",
+                            "description": "Mode bit; \u201c0\u201d means SHA224 \u201c1\u201d means SHA256\""
+                        }
+                    ]
+                },
+                {
+                    "name": "BLOCK0",
+                    "size": 32,
+                    "mode": "w",
+                    "fifo": false,
+                    "offset": 8,
+                    "bit_access": false,
+                    "write_port": "block[31:0]",
+                    "description": "Contains the bits 31-0 of the input block value"
+                },
+                {
+                    "name": "BLOCK1",
+                    "size": 32,
+                    "mode": "w",
+                    "fifo": false,
+                    "offset": 12,
+                    "bit_access": false,
+                    "write_port": "block[63:32]",
+                    "description": "Contains the bits 63-32 of the input block value"
+                },
+                {
+                    "name": "BLOCK2",
+                    "size": 32,
+                    "mode": "w",
+                    "fifo": false,
+                    "offset": 16,
+                    "bit_access": false,
+                    "write_port": "block[95:64]",
+                    "description": "Contains the bits 95-64 of the input block value"
+                },
+                {
+                    "name": "BLOCK3",
+                    "size": 32,
+                    "mode": "w",
+                    "fifo": false,
+                    "offset": 20,
+                    "bit_access": false,
+                    "write_port": "block[127:96]",
+                    "description": "Contains the bits 127-96 of the input block value"
+                },
+                {
+                    "name": "BLOCK4",
+                    "size": 32,
+                    "mode": "w",
+                    "fifo": false,
+                    "offset": 24,
+                    "bit_access": false,
+                    "write_port": "block[159:128]",
+                    "description": "Contains the bits 159-128 of the input block value"
+                },
+                {
+                    "name": "BLOCK5",
+                    "size": 32,
+                    "mode": "w",
+                    "fifo": false,
+                    "offset": 28,
+                    "bit_access": false,
+                    "write_port": "block[191:160]",
+                    "description": "Contains the bits 191-160 of the input block value"
+                },
+                {
+                    "name": "BLOCK6",
+                    "size": 32,
+                    "mode": "w",
+                    "fifo": false,
+                    "offset": 32,
+                    "bit_access": false,
+                    "write_port": "block[223:192]",
+                    "description": "Contains the bits 223-192 of the input block value"
+                },
+                {
+                    "name": "BLOCK7",
+                    "size": 32,
+                    "mode": "w",
+                    "fifo": false,
+                    "offset": 36,
+                    "bit_access": false,
+                    "write_port": "block[255:224]",
+                    "description": "Contains the bits 255-224 of the input block value"
+                },
+                {
+                    "name": "BLOCK8",
+                    "size": 32,
+                    "mode": "w",
+                    "fifo": false,
+                    "offset": 40,
+                    "bit_access": false,
+                    "write_port": "block[287:256]",
+                    "description": "Contains the bits 287-256 of the input block value"
+                },
+                {
+                    "name": "BLOCK9",
+                    "size": 32,
+                    "mode": "w",
+                    "fifo": false,
+                    "offset": 44,
+                    "bit_access": false,
+                    "write_port": "block[319:288]",
+                    "description": "Contains the bits 319-288 of the input block value"
+                },
+                {
+                    "name": "BLOCK10",
+                    "size": 32,
+                    "mode": "w",
+                    "fifo": false,
+                    "offset": 48,
+                    "bit_access": false,
+                    "write_port": "block[351:320]",
+                    "description": "Contains the bits 351-320 of the input block value"
+                },
+                {
+                    "name": "BLOCK11",
+                    "size": 32,
+                    "mode": "w",
+                    "fifo": false,
+                    "offset": 52,
+                    "bit_access": false,
+                    "write_port": "block[383:352]",
+                    "description": "Contains the bits 383-352 of the input block value"
+                },
+                {
+                    "name": "BLOCK12",
+                    "size": 32,
+                    "mode": "w",
+                    "fifo": false,
+                    "offset": 56,
+                    "bit_access": false,
+                    "write_port": "block[415:384]",
+                    "description": "Contains the bits 415-384 of the input block value"
+                },
+                {
+                    "name": "BLOCK13",
+                    "size": 32,
+                    "mode": "w",
+                    "fifo": false,
+                    "offset": 60,
+                    "bit_access": false,
+                    "write_port": "block[447:416]",
+                    "description": "Contains the bits 447-416 of the input block value"
+                },
+                {
+                    "name": "BLOCK14",
+                    "size": 32,
+                    "mode": "w",
+                    "fifo": false,
+                    "offset": 64,
+                    "bit_access": false,
+                    "write_port": "block[479:448]",
+                    "description": "Contains the bits 479-448 of the input block value"
+                },
+                {
+                    "name": "BLOCK15",
+                    "size": 32,
+                    "mode": "w",
+                    "fifo": false,
+                    "offset": 68,
+                    "bit_access": false,
+                    "write_port": "block[511:480]",
+                    "description": "Contains the bits 512-480 of the input block value"
+                },
+                {
+                    "name": "DIGEST0",
+                    "size": 32,
+                    "mode": "w",
+                    "fifo": false,
+                    "offset": 72,
+                    "bit_access": false,
+                    "write_port": "digest[31:0]",
+                    "description": "Contains the bits 31-0 of the input digest value"
+                },
+                {
+                    "name": "DIGEST1",
+                    "size": 32,
+                    "mode": "w",
+                    "fifo": false,
+                    "offset": 76,
+                    "bit_access": false,
+                    "write_port": "digest[63:32]",
+                    "description": "Contains the bits 63-32 of the input digest value"
+                },
+                {
+                    "name": "DIGEST2",
+                    "size": 32,
+                    "mode": "w",
+                    "fifo": false,
+                    "offset": 80,
+                    "bit_access": false,
+                    "write_port": "digest[95:64]",
+                    "description": "Contains the bits 95-64 of the input digest value"
+                },
+                {
+                    "name": "DIGEST3",
+                    "size": 32,
+                    "mode": "w",
+                    "fifo": false,
+                    "offset": 84,
+                    "bit_access": false,
+                    "write_port": "digest[127:96]",
+                    "description": "Contains the bits 127-96 of the input digest value"
+                },
+                {
+                    "name": "DIGEST4",
+                    "size": 32,
+                    "mode": "w",
+                    "fifo": false,
+                    "offset": 88,
+                    "bit_access": false,
+                    "write_port": "digest[159:128]",
+                    "description": "Contains the bits 159-128 of the input digest value"
+                },
+                {
+                    "name": "DIGEST5",
+                    "size": 32,
+                    "mode": "w",
+                    "fifo": false,
+                    "offset": 92,
+                    "bit_access": false,
+                    "write_port": "digest[191:160]",
+                    "description": "Contains the bits 191-160 of the input digest value"
+                },
+                {
+                    "name": "DIGEST6",
+                    "size": 32,
+                    "mode": "w",
+                    "fifo": false,
+                    "offset": 96,
+                    "bit_access": false,
+                    "write_port": "digest[223:192]",
+                    "description": "Contains the bits 223-192 of the input digest value"
+                },
+                {
+                    "name": "DIGEST7",
+                    "size": 32,
+                    "mode": "w",
+                    "fifo": false,
+                    "offset": 100,
+                    "bit_access": false,
+                    "write_port": "digest[255:224]",
+                    "description": "Contains the bits 255-224 of the input digest value"
+                }
+            ],
+            "clock": {
+                "name": "clk",
+                "gated": "yes"
+            },
+            "reset": {
+                "name": "reset_n",
+                "level": 0
+            },
+            "flags": [
+                {
+                    "name": "valid",
+                    "port": "digest_valid",
+                    "description": "Digest is valid"
+                },
+                {
+                    "name": "ready",
+                    "port": "ready",
+                    "description": "Ready to start"
+                }
+            ]
+        },
+        {
+            "info": {
+                "name": "EF_WDT32",
+                "description": "A simple 32-bit WatchDog Timer (WDT). It can be used to interrupt the CPU to:\n  * Indicate a software malfunction.\n  * Wakeup the CPU after a certain sleep time.\n\nThe WDT is a simple 32-bit \"loadable\" down counter which is decremented every system clock cycle. When it reached zero, the counter is loaded with the value stored in the load register and the TO flag is raised.\n\nThe WDT can be enabled/disabled. When it is disabled the counter is loaded with the value in the load register.\n",
+                "repo": "https://github.com/efabless/EF_WDT32",
+                "owner": "Efabless Corp.",
+                "license": "Apache 2.0",
+                "author": "Efabless Corp.",
+                "email": "ip_admin@efabless.com",
+                "version": "v1.1.0",
+                "date": "04-02-2025",
+                "category": "digital",
+                "tags": [
+                    "peripheral",
+                    "timer",
+                    "wdt"
+                ],
+                "bus": [
+                    "generic"
+                ],
+                "type": "soft",
+                "status": "verified",
+                "cell_count": [
+                    {
+                        "IP": "TBD"
+                    },
+                    {
+                        "APB": "TBD"
+                    },
+                    {
+                        "AHBL": "TBD"
+                    },
+                    {
+                        "WB": "TBD"
+                    }
+                ],
+                "width": "0.0",
+                "height": "0.0",
+                "technology": "n/a",
+                "clock_freq_mhz": [
+                    {
+                        "IP": "TBD"
+                    },
+                    {
+                        "APB": "TBD"
+                    },
+                    {
+                        "AHBL": "TBD"
+                    },
+                    {
+                        "WB": "TBD"
+                    }
+                ],
+                "digital_supply_voltage": "n/a",
+                "analog_supply_voltage": "n/a",
+                "irq_reg_offset": 65280,
+                "fifo_reg_offset": 65024
+            },
+            "ports": [
+                {
+                    "name": "WDTMR",
+                    "width": 32,
+                    "direction": "output",
+                    "description": "The current value of the timer"
+                },
+                {
+                    "name": "WDTLOAD",
+                    "width": 32,
+                    "direction": "input",
+                    "description": "The value loaded into the timer when it reaches zero"
+                },
+                {
+                    "name": "WDTTO",
+                    "width": 1,
+                    "direction": "output",
+                    "description": "Time out flag"
+                },
+                {
+                    "name": "WDTEN",
+                    "width": 1,
+                    "direction": "input",
+                    "description": "watchdog timer enable"
+                }
+            ],
+            "clock": {
+                "name": "clk",
+                "gated": "yes"
+            },
+            "reset": {
+                "name": "rst_n",
+                "level": 0
+            },
+            "registers": [
+                {
+                    "name": "timer",
+                    "size": 32,
+                    "mode": "r",
+                    "fifo": false,
+                    "offset": 0,
+                    "bit_access": false,
+                    "read_port": "WDTMR",
+                    "description": "The current value of the timer"
+                },
+                {
+                    "name": "load",
+                    "size": 32,
+                    "mode": "w",
+                    "fifo": false,
+                    "offset": 4,
+                    "bit_access": false,
+                    "write_port": "WDTLOAD",
+                    "description": "The value loaded into the timer when it reaches zero"
+                },
+                {
+                    "name": "control",
+                    "size": 1,
+                    "mode": "w",
+                    "fifo": false,
+                    "offset": 8,
+                    "bit_access": false,
+                    "write_port": "WDTEN",
+                    "description": "Writing 0 disables the WDT and writing 1 enables it"
+                }
+            ],
+            "flags": [
+                {
+                    "name": "wdtto",
+                    "port": "WDTTO",
+                    "description": "Time out flag"
+                }
+            ]
+        },
+        {
+            "info": {
+                "name": "EF_I2S",
+                "description": "Two-wire I2S synchronous serial interface, compatible with I2S specification.",
+                "repo": "github.com/efabless/EF_I2S",
+                "owner": "Efabless Corp.",
+                "license": "APACHE 2.0",
+                "author": "Efabless Corp.",
+                "email": "ip_admin@efabless.com",
+                "version": "v1.2.0",
+                "date": "23-01-2025",
+                "category": "digital",
+                "tags": [
+                    "peripheral",
+                    "audio",
+                    "serial"
+                ],
+                "bus": [
+                    "generic"
+                ],
+                "type": "soft",
+                "status": "verified",
+                "cell_count": [
+                    {
+                        "IP": 2433
+                    },
+                    {
+                        "APB": 2716
+                    },
+                    {
+                        "AHBL": 2799
+                    },
+                    {
+                        "WB": 2941
+                    }
+                ],
+                "width\"": "0.0",
+                "height\"": "0.0",
+                "technology": "n/a",
+                "clock_freq_mhz": [
+                    {
+                        "IP": 116
+                    },
+                    {
+                        "APB": 142
+                    },
+                    {
+                        "AHBL": 135
+                    },
+                    {
+                        "WB": 136
+                    }
+                ],
+                "digital_supply_voltage": "n/a",
+                "analog_supply_voltage": "n/a",
+                "irq_reg_offset": 65280,
+                "fifo_reg_offset": 65024
+            },
+            "parameters": [
+                {
+                    "name": "DW",
+                    "default": 32,
+                    "description": "FIFO data width"
+                },
+                {
+                    "name": "AW",
+                    "default": 4,
+                    "description": "FIFO Address width; Depth=2^AW"
+                }
+            ],
+            "ports": [
+                {
+                    "name": "fifo_en",
+                    "width": 1,
+                    "direction": "input",
+                    "description": "FIFO enable"
+                },
+                {
+                    "name": "fifo_rd",
+                    "width": 1,
+                    "direction": "input",
+                    "description": "Read from FIFO signal"
+                },
+                {
+                    "name": "fifo_level_threshold",
+                    "width": "AW",
+                    "direction": "input",
+                    "description": "FIFO Threshold"
+                },
+                {
+                    "name": "fifo_flush",
+                    "width": 1,
+                    "direction": "input",
+                    "description": "FIFO Flush"
+                },
+                {
+                    "name": "fifo_full",
+                    "width": 1,
+                    "direction": "output",
+                    "description": "FIFO is full flag"
+                },
+                {
+                    "name": "fifo_empty",
+                    "width": 1,
+                    "direction": "output",
+                    "description": "FIFO is empty flag"
+                },
+                {
+                    "name": "fifo_level",
+                    "width": "AW",
+                    "direction": "output",
+                    "description": "The current FIFO level"
+                },
+                {
+                    "name": "fifo_level_above",
+                    "width": 1,
+                    "direction": "output",
+                    "description": "FIFO level is above threshold flag"
+                },
+                {
+                    "name": "fifo_rdata",
+                    "width": 32,
+                    "direction": "output",
+                    "description": "Data read from  FIFO"
+                },
+                {
+                    "name": "sign_extend",
+                    "width": 1,
+                    "direction": "input",
+                    "description": "Flag to show if input data is sign extended"
+                },
+                {
+                    "name": "left_justified",
+                    "width": 1,
+                    "direction": "input",
+                    "description": "Flag to show if input data is left justified"
+                },
+                {
+                    "name": "sample_size",
+                    "width": 6,
+                    "direction": "input",
+                    "description": "The sample size of input data"
+                },
+                {
+                    "name": "sck_prescaler",
+                    "width": 8,
+                    "direction": "input",
+                    "description": "The clock prescaler"
+                },
+                {
+                    "name": "avg_threshold",
+                    "width": 32,
+                    "direction": "input",
+                    "description": "The samples average threshold"
+                },
+                {
+                    "name": "avg_flag",
+                    "width": 1,
+                    "direction": "output",
+                    "description": "Flag raised when the samples average is above a threshold"
+                },
+                {
+                    "name": "avg_en",
+                    "width": 1,
+                    "direction": "input",
+                    "description": "Enable average feature"
+                },
+                {
+                    "name": "avg_sel",
+                    "width": 1,
+                    "direction": "input",
+                    "description": "0 - 32 Samples, 1 - 64 Samples"
+                },
+                {
+                    "name": "zcr_threshold",
+                    "width": 32,
+                    "direction": "input",
+                    "description": "The samples ZCR threshold"
+                },
+                {
+                    "name": "zcr_flag",
+                    "width": 1,
+                    "direction": "output",
+                    "description": "Flag raised when the samples ZCR is above a threshold"
+                },
+                {
+                    "name": "zcr_en",
+                    "width": 1,
+                    "direction": "input",
+                    "description": "Enable average feature"
+                },
+                {
+                    "name": "zcr_sel",
+                    "width": 1,
+                    "direction": "input",
+                    "description": "0 - 32 Samples, 1 - 64 Samples"
+                },
+                {
+                    "name": "vad_flag",
+                    "width": 1,
+                    "direction": "output",
+                    "description": "The VAD flag"
+                },
+                {
+                    "name": "channels",
+                    "width": 2,
+                    "direction": "input",
+                    "description": "Channels used (left, right, or stereo)"
+                },
+                {
+                    "name": "en",
+                    "width": 1,
+                    "direction": "input",
+                    "description": "Enable signal"
+                }
+            ],
+            "external_interface": [
+                {
+                    "name": "ws",
+                    "port": "ws",
+                    "direction": "output",
+                    "description": "Word Select; this signal indicates the boundary between left and right audio channels",
+                    "width": 1
+                },
+                {
+                    "name": "sck",
+                    "port": "sck",
+                    "direction": "output",
+                    "width": 1,
+                    "description": "Serial Clock; this provides the timing for data transfer, synchronizing the transmission of bits."
+                },
+                {
+                    "name": "sdi",
+                    "port": "sdi",
+                    "direction": "input",
+                    "sync": true,
+                    "width": 1,
+                    "description": "Serial Data Input; this line carries the audio data being sent to the device."
+                }
+            ],
+            "clock": {
+                "name": "clk",
+                "gated": "yes"
+            },
+            "reset": {
+                "name": "rst_n",
+                "level": 0
+            },
+            "registers": [
+                {
+                    "name": "RXDATA",
+                    "size": 32,
+                    "mode": "r",
+                    "fifo": true,
+                    "offset": 0,
+                    "bit_access": false,
+                    "read_port": "fifo_rdata",
+                    "description": "The received sample"
+                },
+                {
+                    "name": "PR",
+                    "size": 8,
+                    "mode": "w",
+                    "fifo": false,
+                    "offset": 4,
+                    "bit_access": false,
+                    "write_port": "sck_prescaler",
+                    "description": "The Prescaler register; used to determine the sck signal frequency . $Prescaler = clk_freq/(2 x sck_freq) - 1$."
+                },
+                {
+                    "name": "AVGT",
+                    "size": 32,
+                    "mode": "w",
+                    "fifo": false,
+                    "offset": 8,
+                    "bit_access": false,
+                    "write_port": "avg_threshold",
+                    "description": "The Average threshold"
+                },
+                {
+                    "name": "ZCRT",
+                    "size": 32,
+                    "mode": "w",
+                    "fifo": false,
+                    "offset": 12,
+                    "bit_access": false,
+                    "write_port": "zcr_threshold",
+                    "description": "The ZCR threshold"
+                },
+                {
+                    "name": "CTRL",
+                    "size": 4,
+                    "mode": "w",
+                    "fifo": false,
+                    "offset": 16,
+                    "bit_access": false,
+                    "init": "'h0",
+                    "description": "Control Register; 0:Enable, 1:FIFO Enable.",
+                    "fields": [
+                        {
+                            "name": "en",
+                            "bit_offset": 0,
+                            "bit_width": 1,
+                            "write_port": "en",
+                            "description": "Enable"
+                        },
+                        {
+                            "name": "fifo_en",
+                            "bit_offset": 1,
+                            "bit_width": 1,
+                            "write_port": "fifo_en",
+                            "description": "Fifo Enable"
+                        },
+                        {
+                            "name": "avg_en",
+                            "bit_offset": 2,
+                            "bit_width": 1,
+                            "write_port": "avg_en",
+                            "description": "Averaging enable"
+                        },
+                        {
+                            "name": "zcr_en",
+                            "bit_offset": 3,
+                            "bit_width": 1,
+                            "write_port": "zcr_en",
+                            "description": "ZCR enable"
+                        }
+                    ]
+                },
+                {
+                    "name": "CFG",
+                    "size": 12,
+                    "mode": "w",
+                    "fifo": false,
+                    "offset": 20,
+                    "bit_access": false,
+                    "init": "'h201",
+                    "description": "Configuration Register, 0-1: Channels to read, '01': right, '10': left, '11': Both (stereo) 2: Sign Extend 3: Left Justify 4-8: Sample Size (0-31)",
+                    "fields": [
+                        {
+                            "name": "channels",
+                            "bit_offset": 0,
+                            "bit_width": 2,
+                            "write_port": "channels",
+                            "description": "Channels to read, '01': right, '10': left, '11': Both (stereo)"
+                        },
+                        {
+                            "name": "sign_extend",
+                            "bit_offset": 2,
+                            "bit_width": 1,
+                            "write_port": "sign_extend",
+                            "description": "Sign Extend"
+                        },
+                        {
+                            "name": "left_justified",
+                            "bit_offset": 3,
+                            "bit_width": 1,
+                            "write_port": "left_justified",
+                            "description": "Left justified flag"
+                        },
+                        {
+                            "name": "sample_size",
+                            "bit_offset": 4,
+                            "bit_width": 6,
+                            "write_port": "sample_size",
+                            "description": "Sample size"
+                        },
+                        {
+                            "name": "AVGSEL",
+                            "bit_offset": 10,
+                            "bit_width": 1,
+                            "write_port": "avg_sel",
+                            "description": "Select the number of samples to average"
+                        },
+                        {
+                            "name": "ZCRSEL",
+                            "bit_offset": 11,
+                            "bit_width": 1,
+                            "write_port": "zcr_sel",
+                            "description": "Select the number of samples to calculate the ZCR"
+                        }
+                    ]
+                }
+            ],
+            "flags": [
+                {
+                    "name": "FIFOE",
+                    "port": "fifo_empty",
+                    "description": "Receive FIFO is Empty"
+                },
+                {
+                    "name": "FIFOA",
+                    "port": "fifo_level_above",
+                    "description": "FIFO level is above the set level threshold"
+                },
+                {
+                    "name": "FIFOF",
+                    "port": "fifo_full",
+                    "description": "Receive FIFO is Full."
+                },
+                {
+                    "name": "AVGF",
+                    "port": "avg_flag",
+                    "description": "The avg is above the threshold."
+                },
+                {
+                    "name": "ZCRF",
+                    "port": "zcr_flag",
+                    "description": "The ZCR is above the threshold."
+                },
+                {
+                    "name": "VADF",
+                    "port": "vad_flag",
+                    "description": "The Voice Activity Detector flag; active when both ZCR & AVG flags are active."
+                }
+            ],
+            "fifos": [
+                {
+                    "name": "RX_FIFO",
+                    "type": "read",
+                    "width": "DW",
+                    "address_width": "AW",
+                    "register": "RXDATA",
+                    "data_port": "fifo_rdata",
+                    "control_port": "fifo_rd",
+                    "flush_enable": true,
+                    "flush_port": "fifo_flush",
+                    "threshold_port": "fifo_level_threshold",
+                    "level_port": "fifo_level"
+                }
+            ]
+        },
+        {
+            "info": {
+                "name": "EF_I2C",
+                "description": "APB and wishbone wrappers for the I2C master controller which is implemented in Verilog in the [alexforencich/verilog-i2c](https://github.com/efabless/I2C) repository.",
+                "repo": "https://github.com/efabless/EF_I2C",
+                "owner": "Efabless Corp.",
+                "license": "APACHE 2.0",
+                "author": "Efabless Corp.",
+                "email": "ip_admin@efabless.com",
+                "version": "v1.1.0",
+                "date": "2025-01-23",
+                "category": "digital",
+                "tags": [
+                    "peripheral",
+                    "comm",
+                    "i2c"
+                ],
+                "bus": [
+                    "APB",
+                    "WB"
+                ],
+                "type": "soft",
+                "status": "verified",
+                "cell_count": [
+                    {
+                        "IP": "TBD"
+                    },
+                    {
+                        "APB": "TBD"
+                    }
+                ],
+                "width": "0.0",
+                "height": "0.0",
+                "technology": "n/a",
+                "clock_freq_mhz": [
+                    {
+                        "IP": "TBD"
+                    },
+                    {
+                        "APB": "TBD"
+                    }
+                ],
+                "digital_supply_voltage": "n/a",
+                "analog_supply_voltage": "n/a",
+                "irq_reg_offset": 65280,
+                "fifo_reg_offset": 65024
+            },
+            "parameters": [
+                {
+                    "name": "DEFAULT_PRESCALE",
+                    "default": 1,
+                    "description": "Default value for Prescale; prescale = Fclk / (FI2Cclk * 4)"
+                },
+                {
+                    "name": "FIXED_PRESCALE",
+                    "default": 0,
+                    "description": "Prescale value is fixed or could be dynamically configured"
+                },
+                {
+                    "name": "CMD_FIFO",
+                    "default": 1,
+                    "description": "Command AXI4 FIFO enable"
+                },
+                {
+                    "name": "CMD_FIFO_DEPTH",
+                    "default": 32,
+                    "description": "Command AXI4 FIFO depth"
+                },
+                {
+                    "name": "WRITE_FIFO",
+                    "default": 1,
+                    "description": "Write AXI4 FIFO enable"
+                },
+                {
+                    "name": "WRITE_FIFO_DEPTH",
+                    "default": 32,
+                    "description": "Write AXI4 FIFO depth"
+                },
+                {
+                    "name": "READ_FIFO",
+                    "default": 1,
+                    "description": "Read AXI4 FIFO enable"
+                },
+                {
+                    "name": "READ_FIFO_DEPTH",
+                    "default": 32,
+                    "description": "Read AXI4 FIFO depth"
+                }
+            ],
+            "ports": [
+                {
+                    "name": "wbs_adr_i",
+                    "width": 3,
+                    "direction": "input",
+                    "description": "wishbone input address"
+                },
+                {
+                    "name": "wbs_dat_i",
+                    "width": 16,
+                    "direction": "input",
+                    "description": "wishbone input data"
+                },
+                {
+                    "name": "wbs_dat_o",
+                    "width": 16,
+                    "direction": "output",
+                    "description": "wishbone data out"
+                },
+                {
+                    "name": "wbs_we_i",
+                    "width": 1,
+                    "direction": "input",
+                    "description": "wishbone write enable"
+                },
+                {
+                    "name": "wbs_sel_i",
+                    "width": 2,
+                    "direction": "input",
+                    "description": "wishbone select"
+                },
+                {
+                    "name": "wbs_stb_i",
+                    "width": 1,
+                    "direction": "input",
+                    "description": "wishbone chip select"
+                },
+                {
+                    "name": "wbs_ack_o",
+                    "width": 1,
+                    "direction": "output",
+                    "description": "wishbone acknowledge"
+                },
+                {
+                    "name": "wbs_cyc_i",
+                    "width": 1,
+                    "direction": "input",
+                    "description": "wishbone bus cycle"
+                },
+                {
+                    "name": "i2c_scl_i",
+                    "width": 1,
+                    "direction": "input",
+                    "description": "i2c scl (Serial Clock) input"
+                },
+                {
+                    "name": "i2c_scl_o",
+                    "width": 1,
+                    "direction": "output",
+                    "description": "i2c scl (Serial Clock) output"
+                },
+                {
+                    "name": "i2c_scl_t",
+                    "width": 1,
+                    "direction": "output",
+                    "description": "i2c scl (Serial Clock) tristate"
+                },
+                {
+                    "name": "i2c_sda_i",
+                    "width": 1,
+                    "direction": "input",
+                    "description": "i2c scl (Serial Data) input"
+                },
+                {
+                    "name": "i2c_sda_o",
+                    "width": 1,
+                    "direction": "output",
+                    "description": "i2c scl (Serial Data) output"
+                },
+                {
+                    "name": "i2c_sda_t",
+                    "width": 1,
+                    "direction": "output",
+                    "description": "i2c scl (Serial Data) tristate"
+                },
+                {
+                    "name": "flags",
+                    "width": 16,
+                    "direction": "output",
+                    "description": "i2c flags"
+                }
+            ],
+            "external_interface": [
+                {
+                    "name": "scl_i",
+                    "port": "scl_i",
+                    "direction": "input",
+                    "width": 1,
+                    "description": "i2c scl (Serial Clock) input"
+                },
+                {
+                    "name": "scl_o",
+                    "port": "scl_o",
+                    "direction": "output",
+                    "width": 1,
+                    "description": "i2c scl (Serial Clock) output"
+                },
+                {
+                    "name": "scl_oen_o",
+                    "port": "scl_oen_o",
+                    "direction": "output",
+                    "width": 1,
+                    "description": "i2c scl (Serial Clock) output enable"
+                },
+                {
+                    "name": "sda_i",
+                    "port": "sda_i",
+                    "direction": "input",
+                    "width": 1,
+                    "description": "i2c scl (Serial Data) input"
+                },
+                {
+                    "name": "sda_o",
+                    "port": "sda_o",
+                    "direction": "output",
+                    "width": 1,
+                    "description": "i2c scl (Serial Data) output"
+                },
+                {
+                    "name": "sda_oen_o",
+                    "port": "sda_oen_o",
+                    "direction": "output",
+                    "width": 1,
+                    "description": "i2c scl (Serial Data) output enable"
+                },
+                {
+                    "name": "i2c_irq",
+                    "port": "i2c_irq",
+                    "direction": "output",
+                    "width": 1,
+                    "description": "i2c interrupt"
+                }
+            ],
+            "clock": {
+                "name": "clk",
+                "gated": "yes"
+            },
+            "reset": {
+                "name": "rst",
+                "level": 1
+            },
+            "registers": [
+                {
+                    "name": "Status",
+                    "size": 16,
+                    "mode": "w",
+                    "fifo": false,
+                    "offset": 0,
+                    "bit_access": "no",
+                    "read_port": "",
+                    "description": "status register",
+                    "fields": [
+                        {
+                            "name": "busy",
+                            "bit_offset": 0,
+                            "bit_width": 1,
+                            "write_port": "",
+                            "description": "high when module is performing an I2C operation"
+                        },
+                        {
+                            "name": "bus_cont",
+                            "bit_offset": 1,
+                            "bit_width": 1,
+                            "write_port": "",
+                            "description": "high when module has control of active bus"
+                        },
+                        {
+                            "name": "bus_act",
+                            "bit_offset": 2,
+                            "bit_width": 1,
+                            "write_port": "",
+                            "description": "high when bus is active"
+                        },
+                        {
+                            "name": "miss_ack",
+                            "bit_offset": 3,
+                            "bit_width": 1,
+                            "write_port": "",
+                            "description": "set high when an ACK pulse from a slave device is not seen; write 1 to clear"
+                        },
+                        {
+                            "name": "cmd_empty",
+                            "bit_offset": 8,
+                            "bit_width": 1,
+                            "write_port": "",
+                            "description": "command FIFO empty"
+                        },
+                        {
+                            "name": "cmd_full",
+                            "bit_offset": 9,
+                            "bit_width": 1,
+                            "write_port": "",
+                            "description": "command FIFO full"
+                        },
+                        {
+                            "name": "cmd_ovf",
+                            "bit_offset": 10,
+                            "bit_width": 1,
+                            "write_port": "",
+                            "description": "command FIFO overflow; write 1 to clear"
+                        },
+                        {
+                            "name": "wr_empty",
+                            "bit_offset": 11,
+                            "bit_width": 1,
+                            "write_port": "",
+                            "description": "write data FIFO empty"
+                        },
+                        {
+                            "name": "wr_full",
+                            "bit_offset": 12,
+                            "bit_width": 1,
+                            "write_port": "",
+                            "description": "write data FIFO full"
+                        },
+                        {
+                            "name": "wr_ovf",
+                            "bit_offset": 13,
+                            "bit_width": 1,
+                            "write_port": "",
+                            "description": "write data FIFO overflow; write 1 to clear"
+                        },
+                        {
+                            "name": "rd_empty",
+                            "bit_offset": 14,
+                            "bit_width": 1,
+                            "write_port": "",
+                            "description": "read data FIFO is empty"
+                        },
+                        {
+                            "name": "rd_full",
+                            "bit_offset": 15,
+                            "bit_width": 1,
+                            "write_port": "",
+                            "description": "read data FIFO is full"
+                        }
+                    ]
+                },
+                {
+                    "name": "Command",
+                    "size": 16,
+                    "mode": "w",
+                    "fifo": true,
+                    "offset": 4,
+                    "bit_access": "no",
+                    "read_port": "",
+                    "description": "bit 0-6: cmd_address, bit 8: cmd_start, bit 9: cmd_read, bit 10: cmd_write, bit 11: cmd_wr_m, bit 12: cmd_stop. Setting more than one command bit is allowed.  Start or repeated start will be issued first, followed by read or write, followed by stop.  Note that setting read and write at the same time is not allowed, this will result in the command being ignored.",
+                    "fields": [
+                        {
+                            "name": "cmd_address",
+                            "bit_offset": 0,
+                            "bit_width": 7,
+                            "write_port": "",
+                            "description": "I2C address for command"
+                        },
+                        {
+                            "name": "cmd_start",
+                            "bit_offset": 8,
+                            "bit_width": 1,
+                            "write_port": "",
+                            "description": "set high to issue I2C start, write to push on command FIFO"
+                        },
+                        {
+                            "name": "cmd_read",
+                            "bit_offset": 9,
+                            "bit_width": 1,
+                            "write_port": "",
+                            "description": "set high to start read, write to push on command FIFO"
+                        },
+                        {
+                            "name": "cmd_write",
+                            "bit_offset": 10,
+                            "bit_width": 1,
+                            "write_port": "",
+                            "description": "set high to start write, write to push on command FIFO"
+                        },
+                        {
+                            "name": "cmd_write_multiple",
+                            "bit_offset": 11,
+                            "bit_width": 1,
+                            "write_port": "",
+                            "description": "set high to start block write, write to push on command FIFO"
+                        },
+                        {
+                            "name": "cmd_stop",
+                            "bit_offset": 12,
+                            "bit_width": 1,
+                            "write_port": "",
+                            "description": "set high to issue I2C stop, write to push on command FIFO"
+                        }
+                    ]
+                },
+                {
+                    "name": "Data",
+                    "size": 16,
+                    "mode": "w/r",
+                    "fifo": true,
+                    "offset": 8,
+                    "bit_access": "no",
+                    "read_port": "",
+                    "description": "bit 0-7: data, bit 8: data_valid, bit 9: data_last",
+                    "fields": [
+                        {
+                            "name": "data",
+                            "bit_offset": 0,
+                            "bit_width": 8,
+                            "write_port": "",
+                            "description": " I2C data, write to push on write data FIFO, read to pull from read data FIFO"
+                        },
+                        {
+                            "name": "data_valid",
+                            "bit_offset": 8,
+                            "bit_width": 1,
+                            "write_port": "",
+                            "description": "indicates valid read data, must be accessed with atomic 16 bit reads and writes"
+                        },
+                        {
+                            "name": "data_last",
+                            "bit_offset": 9,
+                            "bit_width": 1,
+                            "write_port": "",
+                            "description": "indicate last byte of block write (write_multiple), must be accessed with atomic 16 bit reads and writes"
+                        }
+                    ]
+                },
+                {
+                    "name": "PR",
+                    "size": 16,
+                    "mode": "w",
+                    "fifo": false,
+                    "offset": 12,
+                    "bit_access": "no",
+                    "read_port": "",
+                    "description": "prescale = Fclk / (FI2Cclk * 4)"
+                }
+            ],
+            "flags": [
+                {
+                    "name": "BUSY",
+                    "port": "busy_int",
+                    "description": "High when module is performing an I2C operation"
+                },
+                {
+                    "name": "BUSCONT",
+                    "port": "bus_control_int",
+                    "description": "High when module has control of active bus"
+                },
+                {
+                    "name": "BUSACT",
+                    "port": "bus_active_int",
+                    "description": "High when bus is active"
+                },
+                {
+                    "name": "MISS_ACK",
+                    "port": "missed_ack_flag",
+                    "description": "Slave ACK is missed"
+                },
+                {
+                    "name": "CMDE",
+                    "port": "cmd_fifo_empty",
+                    "description": "Command FIFO is Empty"
+                },
+                {
+                    "name": "CMDF",
+                    "port": "cmd_fifo_full",
+                    "description": "Command FIFO is Full"
+                },
+                {
+                    "name": "CMDOVF",
+                    "port": "cmd_fifo_overflow_flag",
+                    "description": "Command FIFO overflow; write 1 to clear"
+                },
+                {
+                    "name": "WRE",
+                    "port": "write_fifo_empty",
+                    "description": "Write FIFO is Empty"
+                },
+                {
+                    "name": "WRF",
+                    "port": "write_fifo_full",
+                    "description": "Write FIFO is Full"
+                },
+                {
+                    "name": "WROVF",
+                    "port": "write_fifo_overflow_flag",
+                    "description": "Write FIFO overflow; write 1 to clear"
+                },
+                {
+                    "name": "RDE",
+                    "port": "read_fifo_empty",
+                    "description": "Read FIFO is Empty"
+                },
+                {
+                    "name": "RDF",
+                    "port": "read_fifo_full",
+                    "description": "Read FIFO is Full"
+                }
+            ]
+        },
+        {
+            "info": {
+                "name": "EF_TMR32",
+                "description": " A 32-bit timer and PWM generator with the following features:\n- 32-bit prescaler.\n- Up Counting, Down Counting and Up/Down Counting.\n- One-shot and Periodic.\n- Two independent PWM channels with two compare registers.\n- Optional PWM signal inversion: v1.1.0\n- Configurable PWM dead time/band to generate PWM signals such as those required by a half-H bridge driver.\n- Fault handling.\n",
+                "repo": "github.com/efabless/EF_TMR32/tree/main",
+                "owner": "Efabless Corp.",
+                "license": "APACHE 2.0",
+                "author": "Efabless Corp.",
+                "email": "ip_admin@efabless.com",
+                "version": "v1.1.0",
+                "date": "23-01-2025",
+                "category": "digital",
+                "tags": [
+                    "timer",
+                    "pwm",
+                    "peripheral",
+                    "motor control",
+                    "time",
+                    "periodic"
+                ],
+                "bus": [
+                    "generic"
+                ],
+                "type\"": "soft",
+                "status": "n/a",
+                "qualification": "n/a",
+                "cell_count": [
+                    {
+                        "IP": 797
+                    },
+                    {
+                        "APB": 1435
+                    },
+                    {
+                        "AHBL": 1501
+                    },
+                    {
+                        "WB": 1669
+                    }
+                ],
+                "width\"": 0.0,
+                "height\"": 0.0,
+                "technology": "n/a",
+                "clock_freq_mhz": [
+                    {
+                        "IP": 163
+                    },
+                    {
+                        "APB": 135
+                    },
+                    {
+                        "AHBL": 128
+                    },
+                    {
+                        "WB": 63
+                    }
+                ],
+                "digital_supply_voltage": "n/a",
+                "analog_supply_voltage": "n/a",
+                "irq_reg_offset": 65280,
+                "fifo_reg_offset": 65024
+            },
+            "parameters": [
+                {
+                    "name": "PRW",
+                    "default": 16,
+                    "description": "Number of bits for the prescaler register"
+                }
+            ],
+            "ports": [
+                {
+                    "name": "tmr_en",
+                    "width": 1,
+                    "direction": "input",
+                    "description": "Flag to enable timer"
+                },
+                {
+                    "name": "tmr_start",
+                    "width": 1,
+                    "direction": "input",
+                    "description": "Flag to make tmr start in one shot mode"
+                },
+                {
+                    "name": "pwm0_en",
+                    "width": 1,
+                    "direction": "input",
+                    "description": "Enable signal for PWM0 generation"
+                },
+                {
+                    "name": "pwm1_en",
+                    "width": 1,
+                    "direction": "input",
+                    "description": "Enable signal for PWM1 generation"
+                },
+                {
+                    "name": "tmr_reload",
+                    "width": 32,
+                    "direction": "input",
+                    "description": "The reload value which the counter will reach or start from"
+                },
+                {
+                    "name": "cmpx",
+                    "width": 32,
+                    "direction": "input",
+                    "description": "The compare value X"
+                },
+                {
+                    "name": "cmpy",
+                    "width": 32,
+                    "direction": "input",
+                    "description": "The compare value Y"
+                },
+                {
+                    "name": "prescaler",
+                    "width": "PRW",
+                    "direction": "input",
+                    "description": "Prescaler value; Timer frequency = clock frequency / (prescaler + 1)"
+                },
+                {
+                    "name": "tmr_cfg",
+                    "width": 3,
+                    "direction": "input",
+                    "description": "Timer configuration value; periodic or one shot and counting direction"
+                },
+                {
+                    "name": "pwm0_cfg",
+                    "width": 12,
+                    "direction": "input",
+                    "description": "Actions configuration for pwm0"
+                },
+                {
+                    "name": "pwm1_cfg",
+                    "width": 12,
+                    "direction": "input",
+                    "description": "Actions configuration for pwm1"
+                },
+                {
+                    "name": "pwm0_inv",
+                    "width": 1,
+                    "direction": "input",
+                    "description": "Invert pwm0 signal"
+                },
+                {
+                    "name": "pwm1_inv",
+                    "width": 1,
+                    "direction": "input",
+                    "description": "Invert pwm1 signal"
+                },
+                {
+                    "name": "pwm_dt",
+                    "width": 8,
+                    "direction": "input",
+                    "description": "Deadtime for pwm"
+                },
+                {
+                    "name": "pwm_fault_clr",
+                    "width": 16,
+                    "direction": "input",
+                    "description": "PWM fault input"
+                },
+                {
+                    "name": "pwm_dt_en",
+                    "width": 1,
+                    "direction": "input",
+                    "description": "PWM deadtime enable"
+                },
+                {
+                    "name": "tmr",
+                    "width": 32,
+                    "direction": "output",
+                    "description": "The actual value for the timer"
+                },
+                {
+                    "name": "matchx_flag",
+                    "width": 1,
+                    "direction": "output",
+                    "description": "Flag raised when matching compare value x"
+                },
+                {
+                    "name": "matchy_flag",
+                    "width": 1,
+                    "direction": "output",
+                    "description": "Flag raised when matching compare value x"
+                },
+                {
+                    "name": "timeout_flag",
+                    "width": 1,
+                    "direction": "output",
+                    "description": "Flag raised when timeout happen"
+                }
+            ],
+            "clock": {
+                "name": "clk",
+                "gated": "yes"
+            },
+            "reset": {
+                "name": "rst_n",
+                "level": 0
+            },
+            "external_interface": [
+                {
+                    "name": "pwm0",
+                    "port": "pwm0",
+                    "direction": "output",
+                    "width": 1,
+                    "description": "Output of pwm0 ; this signal is a square wave where the width of the pulse (on time) is varied to control the power delivered to a load, often used for controlling motors, lights, and other devices."
+                },
+                {
+                    "name": "pwm1",
+                    "port": "pwm1",
+                    "direction": "output",
+                    "width": 1,
+                    "description": "Output of pwm1 ; this signal is a square wave where the width of the pulse (on time) is varied to control the power delivered to a load, often used for controlling motors, lights, and other devices."
+                },
+                {
+                    "name": "pwm_fault",
+                    "port": "pwm_fault",
+                    "direction": "input",
+                    "width": 1,
+                    "description": "This is a signal that indicates a fault or error condition in the PWM system, typically used for safety purposes to shut down or adjust the operation of the device in case of malfunction."
+                }
+            ],
+            "registers": [
+                {
+                    "name": "TMR",
+                    "size": 32,
+                    "mode": "r",
+                    "fifo": false,
+                    "offset": 0,
+                    "bit_access": false,
+                    "read_port": "tmr",
+                    "description": "The current value of the Timer."
+                },
+                {
+                    "name": "RELOAD",
+                    "size": 32,
+                    "mode": "w",
+                    "fifo": false,
+                    "offset": 4,
+                    "bit_access": false,
+                    "write_port": "tmr_reload",
+                    "description": "The timer reload value. In up counting it is used as the terminal count. For down counting it is used as the initial count."
+                },
+                {
+                    "name": "PR",
+                    "size": "PRW",
+                    "mode": "w",
+                    "init": "'h0",
+                    "fifo": false,
+                    "offset": 8,
+                    "bit_access": false,
+                    "write_port": "prescaler",
+                    "description": "The Prescaler. The timer counting frequency is $Clock\\ freq/(PR + 1)$"
+                },
+                {
+                    "name": "CMPX",
+                    "size": 32,
+                    "mode": "w",
+                    "fifo": false,
+                    "offset": 12,
+                    "bit_access": false,
+                    "write_port": "cmpx",
+                    "description": "Compare Register X."
+                },
+                {
+                    "name": "CMPY",
+                    "size": 32,
+                    "mode": "w",
+                    "fifo": false,
+                    "offset": 16,
+                    "bit_access": false,
+                    "write_port": "cmpy",
+                    "description": "Compare Register Y."
+                },
+                {
+                    "name": "CTRL",
+                    "size": 7,
+                    "mode": "w",
+                    "fifo": false,
+                    "offset": 20,
+                    "bit_access": false,
+                    "description": "Control Register.",
+                    "fields": [
+                        {
+                            "name": "TE",
+                            "bit_offset": 0,
+                            "bit_width": 1,
+                            "write_port": "tmr_en",
+                            "description": "Timer enable"
+                        },
+                        {
+                            "name": "TS",
+                            "bit_offset": 1,
+                            "bit_width": 1,
+                            "write_port": "tmr_start",
+                            "description": "Timer re-start; used in the one-shot mode to restart the timer. Write 1 then 0 to re-start the timer."
+                        },
+                        {
+                            "name": "P0E",
+                            "bit_offset": 2,
+                            "bit_width": 1,
+                            "write_port": "pwm0_en",
+                            "description": "PWM 0 enable"
+                        },
+                        {
+                            "name": "P1E",
+                            "bit_offset": 3,
+                            "bit_width": 1,
+                            "write_port": "pwm1_en",
+                            "description": "PWM 1 enable"
+                        },
+                        {
+                            "name": "DTE",
+                            "bit_offset": 4,
+                            "bit_width": 1,
+                            "write_port": "pwm_dt_en",
+                            "description": "PWM deadtime enable"
+                        },
+                        {
+                            "name": "PI0",
+                            "bit_offset": 5,
+                            "bit_width": 1,
+                            "write_port": "pwm0_inv",
+                            "description": "Invert PWM0 output."
+                        },
+                        {
+                            "name": "PI1",
+                            "bit_offset": 6,
+                            "bit_width": 1,
+                            "write_port": "pwm1_inv",
+                            "description": "Invert PWM1 output."
+                        }
+                    ]
+                },
+                {
+                    "name": "CFG",
+                    "size": 3,
+                    "mode": "w",
+                    "fifo": false,
+                    "offset": 24,
+                    "bit_access": false,
+                    "write_port": "tmr_cfg",
+                    "description": "Configuration Register.",
+                    "fields": [
+                        {
+                            "name": "DIR",
+                            "bit_offset": 0,
+                            "bit_width": 2,
+                            "description": "Count direction; 10: Up, 01: Down, 11: Up/Down"
+                        },
+                        {
+                            "name": "P",
+                            "bit_offset": 2,
+                            "bit_width": 1,
+                            "description": "1: Periodic, 0: One Shot"
+                        }
+                    ]
+                },
+                {
+                    "name": "PWM0CFG",
+                    "size": 12,
+                    "mode": "w",
+                    "fifo": false,
+                    "offset": 28,
+                    "bit_access": false,
+                    "write_port": "pwm0_cfg",
+                    "description": "PWM0 Configuration Register.",
+                    "fields": [
+                        {
+                            "name": "E0",
+                            "bit_offset": 0,
+                            "bit_width": 2,
+                            "description": "PWM0 action for matching zero. 00: No Action, 01: Low, 10: High, 11: Invert"
+                        },
+                        {
+                            "name": "E1",
+                            "bit_offset": 2,
+                            "bit_width": 2,
+                            "description": "PWM0 action for matching CMPX (going up). 00: No Action, 01: Low, 10: High, 11: Invert"
+                        },
+                        {
+                            "name": "E2",
+                            "bit_offset": 4,
+                            "bit_width": 2,
+                            "description": "PWM0 action for matching CMPY (going up). 00: No Action, 01: Low, 10: High, 11: Invert"
+                        },
+                        {
+                            "name": "E3",
+                            "bit_offset": 6,
+                            "bit_width": 2,
+                            "description": "PWM0 action for matching RELOAD. 00: No Action, 01: Low, 10: High, 11: Invert"
+                        },
+                        {
+                            "name": "E4",
+                            "bit_offset": 8,
+                            "bit_width": 2,
+                            "description": "PWM0 action for  matching CMPY (going down). 00: No Action, 01: Low, 10: High, 11: Invert"
+                        },
+                        {
+                            "name": "E5",
+                            "bit_offset": 10,
+                            "bit_width": 2,
+                            "description": "PWM0 action for matching CMPX (going down). 00: No Action, 01: Low, 10: High, 11: Invert"
+                        }
+                    ]
+                },
+                {
+                    "name": "PWM1CFG",
+                    "size": 16,
+                    "mode": "w",
+                    "fifo": false,
+                    "offset": 32,
+                    "bit_access": false,
+                    "write_port": "pwm1_cfg",
+                    "description": "PWM1 Configuration Register.",
+                    "fields": [
+                        {
+                            "name": "E0",
+                            "bit_offset": 0,
+                            "bit_width": 2,
+                            "description": "PWM1 action for matching zero. 00: No Action, 01: Low, 10: High, 11: Invert"
+                        },
+                        {
+                            "name": "E1",
+                            "bit_offset": 2,
+                            "bit_width": 2,
+                            "description": "PWM1 action for matching CMPX (going up). 00: No Action, 01: Low, 10: High, 11: Invert"
+                        },
+                        {
+                            "name": "E2",
+                            "bit_offset": 4,
+                            "bit_width": 2,
+                            "description": "PWM1 action for matching CMPY (going up). 00: No Action, 01: Low, 10: High, 11: Invert"
+                        },
+                        {
+                            "name": "E3",
+                            "bit_offset": 6,
+                            "bit_width": 2,
+                            "description": "PWM1 action for matching RELOAD. 00: No Action, 01: Low, 10: High, 11: Invert"
+                        },
+                        {
+                            "name": "E4",
+                            "bit_offset": 8,
+                            "bit_width": 2,
+                            "description": "PWM1 action for matching CMPY (going down). 00: No Action, 01: Low, 10: High, 11: Invert"
+                        },
+                        {
+                            "name": "E5",
+                            "bit_offset": 10,
+                            "bit_width": 2,
+                            "description": "PWM1 action for matching CMPX (going down). 00: No Action, 01: Low, 10: High, 11: Invert"
+                        }
+                    ]
+                },
+                {
+                    "name": "PWMDT",
+                    "size": 8,
+                    "mode": "w",
+                    "fifo": false,
+                    "offset": 36,
+                    "bit_access": false,
+                    "write_port": "pwm_dt",
+                    "description": "PWM deadtime Register."
+                },
+                {
+                    "name": "PWMFC",
+                    "size": 16,
+                    "mode": "w",
+                    "fifo": false,
+                    "offset": 40,
+                    "bit_access": false,
+                    "write_port": "pwm_fault_clr",
+                    "description": "PWM fault clear register."
+                }
+            ],
+            "flags": [
+                {
+                    "name": "TO",
+                    "port": "timeout_flag",
+                    "description": "Timeout; TMR matches 0 (down counting) or RELOAD (up counting)."
+                },
+                {
+                    "name": "MX",
+                    "port": "matchx_flag",
+                    "description": "TMR matches CMPX register."
+                },
+                {
+                    "name": "MY",
+                    "port": "matchy_flag",
+                    "description": "TMR matches CMPY register."
+                }
+            ]
+        },
+        {
+            "info": {
+                "name": "EF_SPI",
+                "description": "SPI master controller with receive and transmit FIFOs.",
+                "repo": "github.com/efabless/EF_SPI",
+                "owner": "Efabless Corp.",
+                "license": "APACHE 2.0",
+                "author": "Efabless Corp.",
+                "email": "ip_admin@efabless.com",
+                "version": "v1.1.0",
+                "date": "23-01-2025",
+                "category": "digital",
+                "tags": [
+                    "peripheral",
+                    "comm",
+                    "spi"
+                ],
+                "bus": [
+                    "generic"
+                ],
+                "type": "soft",
+                "status": "verified",
+                "cell_count": [
+                    {
+                        "IP": "TBD"
+                    },
+                    {
+                        "APB": "TBD"
+                    },
+                    {
+                        "AHBL": "TBD"
+                    },
+                    {
+                        "WB": "TBD"
+                    }
+                ],
+                "width": "0.0",
+                "height": "0.0",
+                "technology": "n/a",
+                "clock_freq_mhz": [
+                    {
+                        "IP": "TBD"
+                    },
+                    {
+                        "APB": "TBD"
+                    },
+                    {
+                        "AHBL": "TBD"
+                    },
+                    {
+                        "WB": "TBD"
+                    }
+                ],
+                "digital_supply_voltage": "n/a",
+                "analog_supply_voltage": "n/a",
+                "irq_reg_offset": 65280,
+                "fifo_reg_offset": 65024,
+                "firmware_guidelines": "1. Set the prescaler by writing to the ``PR`` register where SPI Clock Frequency = System Clock / PR. Note: should have a value >= 2.\n2. Configure clock polarity and clock phase bu setting ``cpol`` and ``cpha`` fields in the ``CFG`` register.\n3. Set the ``SSn`` field in the ``CTRL`` register\n"
+            },
+            "parameters": [
+                {
+                    "name": "CDW",
+                    "default": 8,
+                    "description": "The width of the clock divider used to generate the SPI clock."
+                },
+                {
+                    "name": "FAW",
+                    "default": 4,
+                    "description": "Log2 of the FIFO depth."
+                }
+            ],
+            "ports": [
+                {
+                    "name": "CPOL",
+                    "width": 1,
+                    "direction": "input",
+                    "description": "SPI Clock Polarity."
+                },
+                {
+                    "name": "CPHA",
+                    "width": 1,
+                    "direction": "input",
+                    "description": "SPI CLock Phase."
+                },
+                {
+                    "name": "clk_divider",
+                    "width": "CDW",
+                    "direction": "input",
+                    "description": "The SPI clock divider; SPI clock frequency = System Clock Frequency / clk_divider."
+                },
+                {
+                    "name": "wr",
+                    "width": 1,
+                    "direction": "input",
+                    "description": "Write to the TX FIFO."
+                },
+                {
+                    "name": "rd",
+                    "width": 1,
+                    "direction": "input",
+                    "description": "Read from the RX FIFO."
+                },
+                {
+                    "name": "datai",
+                    "width": 8,
+                    "direction": "input",
+                    "description": "Data to place into the TX FIFO."
+                },
+                {
+                    "name": "datao",
+                    "width": 8,
+                    "direction": "output",
+                    "description": "Data from the RX FIFO."
+                },
+                {
+                    "name": "rx_en",
+                    "width": 1,
+                    "direction": "input",
+                    "description": "Enable the RX FIFO."
+                },
+                {
+                    "name": "rx_flush",
+                    "width": 1,
+                    "direction": "input",
+                    "description": "Flush the RX FIFO."
+                },
+                {
+                    "name": "rx_threshold",
+                    "width": "FAW",
+                    "direction": "input",
+                    "description": "RX FIFO level threshold."
+                },
+                {
+                    "name": "rx_empty",
+                    "width": 1,
+                    "direction": "output",
+                    "description": "RX FIFO is empty."
+                },
+                {
+                    "name": "rx_full",
+                    "width": 1,
+                    "direction": "output",
+                    "description": "RX FIFO is full."
+                },
+                {
+                    "name": "rx_level_above",
+                    "width": 1,
+                    "direction": "output",
+                    "description": "RX FIFO level is above the threshold."
+                },
+                {
+                    "name": "rx_level",
+                    "width": "FAW",
+                    "direction": "output",
+                    "description": "RX FIFO data level."
+                },
+                {
+                    "name": "tx_flush",
+                    "width": 1,
+                    "direction": "input",
+                    "description": "Flush the TX FIFO."
+                },
+                {
+                    "name": "tx_threshold",
+                    "width": "FAW",
+                    "direction": "input",
+                    "description": "TX FIFO level threshold."
+                },
+                {
+                    "name": "tx_empty",
+                    "width": 1,
+                    "direction": "output",
+                    "description": "TX FIFO is empty."
+                },
+                {
+                    "name": "tx_full",
+                    "width": 1,
+                    "direction": "output",
+                    "description": "TX FIFO is full."
+                },
+                {
+                    "name": "tx_level_below",
+                    "width": 1,
+                    "direction": "output",
+                    "description": "TX FIFO level is below trhe threshold."
+                },
+                {
+                    "name": "tx_level",
+                    "width": "FAW",
+                    "direction": "output",
+                    "description": "TX FIFO data level."
+                },
+                {
+                    "name": "ss",
+                    "width": 1,
+                    "direction": "input",
+                    "description": null
+                },
+                {
+                    "name": "enable",
+                    "width": 1,
+                    "direction": "input",
+                    "description": "enable for spi master pulse generation"
+                },
+                {
+                    "name": "done",
+                    "width": 1,
+                    "direction": "output",
+                    "description": "spi done flag."
+                },
+                {
+                    "name": "busy",
+                    "width": 1,
+                    "direction": "output",
+                    "description": "spi busy flag."
+                }
+            ],
+            "external_interface": [
+                {
+                    "name": "miso",
+                    "port": "miso",
+                    "width": 1,
+                    "direction": "input",
+                    "description": "Master In Slave Out; this line carries data from the slave device to the master.",
+                    "sync": false
+                },
+                {
+                    "name": "mosi",
+                    "port": "mosi",
+                    "width": 1,
+                    "direction": "output",
+                    "description": "Master Out Slave In; this line carries data from the master device to the slave."
+                },
+                {
+                    "name": "csb",
+                    "port": "csb",
+                    "width": 1,
+                    "direction": "output",
+                    "description": "Chip Select Bar; this signal selects the slave device to communicate with, typically active low."
+                },
+                {
+                    "name": "sclk",
+                    "port": "sclk",
+                    "width": 1,
+                    "direction": "output",
+                    "description": "Serial Clock; this provides the clock signal that synchronizes data transfer between master and slave devices."
+                }
+            ],
+            "clock": {
+                "name": "clk",
+                "gated": "yes"
+            },
+            "reset": {
+                "name": "rst_n",
+                "level": 0
+            },
+            "registers": [
+                {
+                    "name": "RXDATA",
+                    "size": 8,
+                    "mode": "r",
+                    "fifo": true,
+                    "offset": 0,
+                    "bit_access": false,
+                    "read_port": "datao",
+                    "description": "RX Data register; the interface to the Receive FIFO."
+                },
+                {
+                    "name": "TXDATA",
+                    "size": 8,
+                    "mode": "w",
+                    "fifo": true,
+                    "offset": 4,
+                    "bit_access": false,
+                    "write_port": "datai",
+                    "description": "TX Data register; ; the interface to the Receive FIFO."
+                },
+                {
+                    "name": "CFG",
+                    "size": 2,
+                    "mode": "w",
+                    "fifo": false,
+                    "offset": 8,
+                    "bit_access": false,
+                    "description": "Configuration Register.",
+                    "fields": [
+                        {
+                            "name": "cpol",
+                            "bit_offset": 0,
+                            "bit_width": 1,
+                            "write_port": "CPOL",
+                            "description": "SPI Clock Polarity."
+                        },
+                        {
+                            "name": "cpha",
+                            "bit_offset": 1,
+                            "bit_width": 1,
+                            "write_port": "CPHA",
+                            "description": "SPI Clock Phase."
+                        }
+                    ]
+                },
+                {
+                    "name": "CTRL",
+                    "size": 3,
+                    "mode": "w",
+                    "fifo": false,
+                    "offset": 12,
+                    "bit_access": false,
+                    "description": "Control Register.",
+                    "fields": [
+                        {
+                            "name": "SS",
+                            "bit_offset": 0,
+                            "bit_width": 1,
+                            "write_port": "ss",
+                            "description": "Slave Select (Active High)."
+                        },
+                        {
+                            "name": "enable",
+                            "bit_offset": 1,
+                            "bit_width": 1,
+                            "write_port": "enable",
+                            "description": "enable spi master pulse generation"
+                        },
+                        {
+                            "name": "rx_en",
+                            "bit_offset": 2,
+                            "bit_width": 1,
+                            "write_port": "rx_en",
+                            "description": "enable storing bytes recieved from slave"
+                        }
+                    ]
+                },
+                {
+                    "name": "PR",
+                    "size": "CDW",
+                    "mode": "w",
+                    "fifo": false,
+                    "offset": 16,
+                    "init": "'h2",
+                    "bit_access": false,
+                    "write_port": "clk_divider",
+                    "description": "SPI clock Prescaler; should have a value >= 2. SPI Clock Frequency = System Clock / PR."
+                },
+                {
+                    "name": "STATUS",
+                    "size": 8,
+                    "mode": "r",
+                    "fifo": false,
+                    "offset": 20,
+                    "init": "'h0",
+                    "bit_access": false,
+                    "description": "Status resgister",
+                    "fields": [
+                        {
+                            "name": "TX_E",
+                            "bit_offset": 0,
+                            "bit_width": 1,
+                            "read_port": "tx_empty",
+                            "description": "Transmit FIFO is Empty."
+                        },
+                        {
+                            "name": "TX_F",
+                            "bit_offset": 1,
+                            "bit_width": 1,
+                            "read_port": "tx_full",
+                            "description": "Transmit FIFO is Full."
+                        },
+                        {
+                            "name": "RX_E",
+                            "bit_offset": 2,
+                            "bit_width": 1,
+                            "read_port": "rx_empty",
+                            "description": "Receive FIFO is Empty."
+                        },
+                        {
+                            "name": "RX_F",
+                            "bit_offset": 3,
+                            "bit_width": 1,
+                            "read_port": "rx_full",
+                            "description": "Receive FIFO is Full."
+                        },
+                        {
+                            "name": "TX_B",
+                            "bit_offset": 4,
+                            "bit_width": 1,
+                            "read_port": "tx_level_below",
+                            "description": "Transmit FIFO level is Below Threshold."
+                        },
+                        {
+                            "name": "RX_A",
+                            "bit_offset": 5,
+                            "bit_width": 1,
+                            "read_port": "rx_level_above",
+                            "description": "Receive FIFO level is Above Threshold."
+                        },
+                        {
+                            "name": "busy",
+                            "bit_offset": 6,
+                            "bit_width": 1,
+                            "read_port": "busy",
+                            "description": "spi busy flag."
+                        },
+                        {
+                            "name": "done",
+                            "bit_offset": 7,
+                            "bit_width": 1,
+                            "read_port": "done",
+                            "description": "spi done flag."
+                        }
+                    ]
+                }
+            ],
+            "flags": [
+                {
+                    "name": "TXE",
+                    "port": "tx_empty",
+                    "description": "Transmit FIFO is Empty."
+                },
+                {
+                    "name": "TXF",
+                    "port": "tx_full",
+                    "description": "Transmit FIFO is Full."
+                },
+                {
+                    "name": "RXE",
+                    "port": "rx_empty",
+                    "description": "Receive FIFO is Empty."
+                },
+                {
+                    "name": "RXF",
+                    "port": "rx_full",
+                    "description": "Receive FIFO is Full."
+                },
+                {
+                    "name": "TXB",
+                    "port": "tx_level_below",
+                    "description": "Transmit FIFO level is Below Threshold."
+                },
+                {
+                    "name": "RXA",
+                    "port": "rx_level_above",
+                    "description": "Receive FIFO level is Above Threshold."
+                }
+            ],
+            "fifos": [
+                {
+                    "name": "RX_FIFO",
+                    "type": "read",
+                    "width": 8,
+                    "address_width": "FAW",
+                    "register": "RXDATA",
+                    "data_port": "datao",
+                    "control_port": "rd",
+                    "flush_enable": true,
+                    "flush_port": "rx_flush",
+                    "threshold_port": "rx_threshold",
+                    "level_port": "rx_level"
+                },
+                {
+                    "name": "TX_FIFO",
+                    "type": "write",
+                    "width": 8,
+                    "address_width": "FAW",
+                    "register": "TXDATA",
+                    "data_port": "datai",
+                    "control_port": "wr",
+                    "flush_enable": true,
+                    "flush_port": "tx_flush",
+                    "threshold_port": "tx_threshold",
+                    "level_port": "tx_level"
+                }
+            ]
+        }
+    ]
+}
