@@ -6,12 +6,12 @@ import urllib.request
 import yaml
 import argparse
 import logging
-from typing import Any, Dict, List, Optional, Generator, Union
+from typing import Any, Dict, List, Optional, Union
 from dataclasses import dataclass, field
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
-DEFAULT_IPS_URL: str = "https://raw.githubusercontent.com/efabless/ipm/refs/heads/main/verified_IPs.json"
+DEFAULT_IPS_URL: str = "https://raw.githubusercontent.com/shalan/cuprj-cli/refs/heads/main/ip-lib.json"
 
 
 @dataclass
@@ -24,12 +24,14 @@ class ExternalInterface:
         direction (str): The direction ("input" or "output").
         width (int): Bit width.
         description (Optional[str]): Optional description.
+        output_control (bool): If True, connect the slave interface directly to io_oen.
     """
     name: str
     port: str
     direction: str
     width: int
     description: Optional[str] = None
+    output_control: bool = False
 
 
 @dataclass
@@ -194,6 +196,7 @@ def parse_ip_library(data: Dict[str, Any]) -> IPLibrary:
     """
     try:
         entries = []
+        allowed_keys = {"name", "port", "direction", "width", "description", "output_control"}
         for entry in data.get("slaves", []):
             info_data = entry.get("info", {})
             ext_if_data = entry.get("external_interface", [])
@@ -205,7 +208,6 @@ def parse_ip_library(data: Dict[str, Any]) -> IPLibrary:
             )
             flags = entry.get("flags")
             fifos = entry.get("fifos")
-            allowed_keys = {"name", "port", "direction", "width", "description"}
             interfaces = [ExternalInterface(**{k: v for k, v in iface.items() if k in allowed_keys})
                           for iface in ext_if_data]
             entries.append(IPLibraryEntry(info=info, external_interface=interfaces, flags=flags, fifos=fifos))
@@ -328,27 +330,36 @@ class BusGenerator:
             inst_lines.append(f".wb_stb(wb_stb & cs{idx})")
             inst_lines.append(f".wb_cyc(wb_cyc & cs{idx})")
             inst_lines.append(f".wb_ack(slave{idx}_ack)")
+            # Connect external interfaces based on width and output_control property.
             for iface in slave.external_interface:
-                iface_name = iface.name
-                port_name = iface.port
-                direction = iface.direction.lower()
+                iface_name: str = iface.name
+                port_name: str = iface.port
+                direction: str = iface.direction.lower()
                 if iface_name not in slave.io_pins:
                     logging.error(f"Slave '{slave.name}' requires external interface '{iface_name}' but no mapping provided in io_pins.")
                     sys.exit(1)
                 try:
-                    pin_num = int(slave.io_pins[iface_name])
+                    pin_start: int = int(slave.io_pins[iface_name])
                 except ValueError:
                     logging.error(f"I/O pin for interface '{iface_name}' in slave '{slave.name}' must be an integer.")
                     sys.exit(1)
-                if not (0 <= pin_num <= 37):
-                    logging.error(f"I/O pin {pin_num} for interface '{iface_name}' in slave '{slave.name}' out of range (0-37).")
+                pin_end: int = pin_start + iface.width - 1
+                if not all(0 <= p <= 37 for p in range(pin_start, pin_end + 1)):
+                    logging.error(f"I/O pins from {pin_start} to {pin_end} for interface '{iface_name}' in slave '{slave.name}' are out of range (0-37).")
                     sys.exit(1)
                 if direction == "input":
-                    inst_lines.append(f".{port_name}(io_in[{pin_num}])")
-                    io_oen_assignments.setdefault(pin_num, 0)
+                    inst_lines.append(f".{port_name}(io_in[{pin_end}:{pin_start}])")
+                    #for p in range(pin_start, pin_end + 1):
+                    #    io_oen_assignments.setdefault(p, 0)
                 elif direction == "output":
-                    inst_lines.append(f".{port_name}(io_out[{pin_num}])")
-                    io_oen_assignments.setdefault(pin_num, 1)
+                    if iface.output_control is True:
+                        inst_lines.append(f".{port_name}(io_oen[{pin_end}:{pin_start}])")
+                        for p in range(pin_start, pin_end + 1):
+                            io_oen_assignments.setdefault(p, 1)
+                    else:
+                        inst_lines.append(f".{port_name}(io_out[{pin_end}:{pin_start}])")
+                        #for p in range(pin_start, pin_end + 1):
+                        #    io_oen_assignments.setdefault(p, 1)
                 else:
                     logging.error(f"Unknown direction '{direction}' for interface '{iface_name}' in slave '{slave.name}'.")
                     sys.exit(1)
@@ -357,6 +368,7 @@ class BusGenerator:
                     logging.error(f"IRQ {slave.irq} for slave '{slave.name}' out of range (0-2).")
                     sys.exit(1)
                 inst_lines.append(f".irq(user_irq[{slave.irq}])")
+
             lines.append(f"    {slave.type} {slave.name} (")
             lines.append("        " + ",\n        ".join(inst_lines))
             lines.append("    );")
@@ -382,15 +394,15 @@ class BusGenerator:
         lines.append("    assign wb_dat = wb_we ? wb_dat : selected_dat;")
         lines.append("    assign wb_ack = selected_ack;")
         lines.append("")
+        # Only assign default values to io_oen and io_out if the pin is not connected by an external interface.
         for pin in range(0, 38):
-            if pin in io_oen_assignments:
-                lines.append(f"    assign io_oen[{pin}] = 1'b{io_oen_assignments[pin]};")
-            else:
+            if pin not in io_oen_assignments:
                 lines.append(f"    assign io_oen[{pin}] = 1'b1;")
                 lines.append(f"    assign io_out[{pin}] = 1'b0;")
         lines.append("")
         lines.append("endmodule")
         return "\n".join(lines)
+
 
 def generate_wrapper(wb_bus_code: str) -> str:
     """Generates the top-level wrapper module 'user_project_wrapper'.
@@ -459,6 +471,7 @@ def generate_wrapper(wb_bus_code: str) -> str:
     lines.append("endmodule")
     return "\n".join(lines)
 
+
 def generate_command(args: argparse.Namespace) -> None:
     """Executes the generate command.
 
@@ -480,6 +493,7 @@ def generate_command(args: argparse.Namespace) -> None:
     wrapper_code = generate_wrapper(verilog_code)
     print(wrapper_code)
 
+
 def list_command(args: argparse.Namespace) -> None:
     """Executes the list command.
 
@@ -492,6 +506,7 @@ def list_command(args: argparse.Namespace) -> None:
     logging.info("Available slave types in the IP library:")
     for ip_name in ip_library.ip_dict.keys():
         print(f"  - {ip_name}")
+
 
 def info_command(args: argparse.Namespace) -> None:
     """Executes the info command.
@@ -528,6 +543,7 @@ def info_command(args: argparse.Namespace) -> None:
     if args.full:
         print(f"  Description: {info.description}")
 
+
 def help_command(parser: argparse.ArgumentParser) -> None:
     """Executes the help command.
 
@@ -536,6 +552,7 @@ def help_command(parser: argparse.ArgumentParser) -> None:
     """
     print(parser.format_help())
     sys.exit(0)
+
 
 def main() -> None:
     parser = argparse.ArgumentParser(
@@ -580,6 +597,7 @@ def main() -> None:
         logging.error(f"Unsupported command: {args.command}")
         print(parser.format_help())
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()
