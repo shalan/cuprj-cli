@@ -84,4 +84,15 @@ slaves:
       rx: 14
       tx: 15
     irq: 1
+  - name: PORTA
+    type: EF_GPIO8
+    base_address: "32'h30020000"
+    io_pins:
+      io_in: 14
+      io_out: 14
+      io_oe: 14
+    irq: 2
 ```
+
+## Disclaimer
+This project was developed with the help of ChatGPT o3-mini-high model.
