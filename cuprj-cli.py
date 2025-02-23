@@ -296,10 +296,11 @@ class BusGenerator:
         lines.append("    input         wb_clk,")
         lines.append("    input         wb_rst,")
         lines.append("    input  [31:0] wb_adr,")
-        lines.append("    inout  [31:0] wb_dat,")
+        lines.append("    inout  [31:0] wb_dat_i,")
         lines.append("    input         wb_we,")
         lines.append("    input         wb_stb,")
         lines.append("    input         wb_cyc,")
+        lines.append("    input  [31:0] wb_dat_o,")
         lines.append("    output        wb_ack,")
         lines.append("    input  [37:0] io_in,")
         lines.append("    output [37:0] io_out,")
@@ -320,16 +321,17 @@ class BusGenerator:
             lines.append(f"    assign cs{idx} = ((wb_adr >= {slave.base_address}) && (wb_adr < ({slave.base_address} + SLAVE_ADDR_SIZE))) ? 1'b1 : 1'b0;")
         lines.append("")
         for idx, slave in enumerate(self.processed_slaves):
-            lines.append(f"    // Instantiate slave {slave.name} of type {slave.type}")
+            lines.append(f"    // Instantiate slave {slave.name} of type {slave.type}_WB")
             inst_lines: List[str] = []
-            inst_lines.append(".wb_clk(wb_clk)")
-            inst_lines.append(".wb_rst(wb_rst)")
-            inst_lines.append(".wb_adr(wb_adr)")
-            inst_lines.append(f".wb_dat(slave{idx}_dat)")
-            inst_lines.append(".wb_we(wb_we)")
-            inst_lines.append(f".wb_stb(wb_stb & cs{idx})")
-            inst_lines.append(f".wb_cyc(wb_cyc & cs{idx})")
-            inst_lines.append(f".wb_ack(slave{idx}_ack)")
+            inst_lines.append(f".clk_i(wb_clk)")
+            inst_lines.append(f".rst_i(wb_rst)")
+            inst_lines.append(f".adr_i(wb_adr)")
+            inst_lines.append(f".dat_o(slave{idx}_dat)")
+            inst_lines.append(f".dat_i(wb_dat_i)")
+            inst_lines.append(f".we_i(wb_we)")
+            inst_lines.append(f".stb_i(wb_stb & cs{idx})")
+            inst_lines.append(f".cyc_i(wb_cyc & cs{idx})")
+            inst_lines.append(f".ack_o(slave{idx}_ack)")
             # Connect external interfaces based on width and output_control property.
             for iface in slave.external_interface:
                 iface_name: str = iface.name
@@ -349,17 +351,17 @@ class BusGenerator:
                     sys.exit(1)
                 if direction == "input":
                     inst_lines.append(f".{port_name}(io_in[{pin_end}:{pin_start}])")
-                    #for p in range(pin_start, pin_end + 1):
-                    #    io_oen_assignments.setdefault(p, 0)
+                    for p in range(pin_start, pin_end + 1):
+                        io_oen_assignments.setdefault(p, 0)
                 elif direction == "output":
                     if iface.output_control is True:
                         inst_lines.append(f".{port_name}(io_oen[{pin_end}:{pin_start}])")
                         for p in range(pin_start, pin_end + 1):
-                            io_oen_assignments.setdefault(p, 1)
+                            io_oen_assignments[p]= 2
                     else:
                         inst_lines.append(f".{port_name}(io_out[{pin_end}:{pin_start}])")
-                        #for p in range(pin_start, pin_end + 1):
-                        #    io_oen_assignments.setdefault(p, 1)
+                        for p in range(pin_start, pin_end + 1):
+                            io_oen_assignments.setdefault(p, 1)
                 else:
                     logging.error(f"Unknown direction '{direction}' for interface '{iface_name}' in slave '{slave.name}'.")
                     sys.exit(1)
@@ -367,9 +369,9 @@ class BusGenerator:
                 if not (0 <= slave.irq <= 2):
                     logging.error(f"IRQ {slave.irq} for slave '{slave.name}' out of range (0-2).")
                     sys.exit(1)
-                inst_lines.append(f".irq(user_irq[{slave.irq}])")
+                inst_lines.append(f".IRQ(user_irq[{slave.irq}])")
 
-            lines.append(f"    {slave.type} {slave.name} (")
+            lines.append(f"    {slave.type}_WB {slave.name} (")
             lines.append("        " + ",\n        ".join(inst_lines))
             lines.append("    );")
             lines.append("")
@@ -391,7 +393,7 @@ class BusGenerator:
         lines.append("        end")
         lines.append("    end")
         lines.append("")
-        lines.append("    assign wb_dat = wb_we ? wb_dat : selected_dat;")
+        lines.append("    assign wb_dat_o = selected_dat;")
         lines.append("    assign wb_ack = selected_ack;")
         lines.append("")
         # Only assign default values to io_oen and io_out if the pin is not connected by an external interface.
@@ -399,6 +401,10 @@ class BusGenerator:
             if pin not in io_oen_assignments:
                 lines.append(f"    assign io_oen[{pin}] = 1'b1;")
                 lines.append(f"    assign io_out[{pin}] = 1'b0;")
+            elif io_oen_assignments[pin] == 0:
+                lines.append(f"    assign io_oen[{pin}] = 1'b0;")
+            elif io_oen_assignments[pin] == 1:
+                lines.append(f"    assign io_oen[{pin}] = 1'b1;")
         lines.append("")
         lines.append("endmodule")
         return "\n".join(lines)
@@ -437,7 +443,7 @@ def generate_wrapper(wb_bus_code: str) -> str:
     lines.append("    input [3:0] wbs_sel_i,")
     lines.append("    input [31:0] wbs_dat_i,")
     lines.append("    input [31:0] wbs_adr_i,")
-    lines.append("    output wb_ack_o,")
+    lines.append("    output wbs_ack_o,")
     lines.append("    output [31:0] wbs_dat_o,")
     lines.append("    input  [127:0] la_data_in,")
     lines.append("    output [127:0] la_data_out,")
@@ -450,14 +456,15 @@ def generate_wrapper(wb_bus_code: str) -> str:
     lines.append("    output [2:0] user_irq")
     lines.append(");")
     lines.append("    wire [31:0] wb_dat_bus;")
-    lines.append("    assign wb_dat_bus = (wbs_we_i) ? wbs_dat_i : 32'bz;")
-    lines.append("    assign wbs_dat_o = wb_dat_bus;")
+    #lines.append("    assign wb_dat_bus = (wbs_we_i) ? wbs_dat_i : 32'bz;")
+    #lines.append("    assign wbs_dat_o = wb_dat_bus;")
     lines.append("    wire [`MPRJ_IO_PADS-1:0] internal_io_oen;")
     lines.append("    wb_bus u_wb_bus (")
     lines.append("        .wb_clk(wb_clk_i),")
     lines.append("        .wb_rst(wb_rst_i),")
     lines.append("        .wb_adr(wbs_adr_i),")
-    lines.append("        .wb_dat(wb_dat_bus),")
+    lines.append("        .wb_dat_o(wbs_dat_o),")
+    lines.append("        .wb_dat_i(wbs_dat_i),")
     lines.append("        .wb_we(wbs_we_i),")
     lines.append("        .wb_stb(wbs_stb_i),")
     lines.append("        .wb_cyc(wbs_cyc_i),")
