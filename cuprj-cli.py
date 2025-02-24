@@ -478,6 +478,55 @@ def generate_wrapper(wb_bus_code: str) -> str:
     lines.append("endmodule")
     return "\n".join(lines)
 
+def convert_base_address_to_c_format(addr: str) -> str:
+    """Converts a base address string from Verilog style (e.g. 32'h30000000) to C hex format (e.g. 0x30000000).
+
+    Args:
+        addr (str): The base address string.
+
+    Returns:
+        str: The converted C-style hex string.
+    """
+    if addr.startswith("32'h") or addr.startswith("32'H"):
+        return "0x" + addr[4:]
+    elif addr.startswith("0x"):
+        return addr
+    else:
+        try:
+            num = int(addr, 0)
+            return hex(num)
+        except Exception:
+            return addr
+        
+def generate_c_header(generator: "BusGenerator", bus_yaml_file: str) -> str:
+    """Generates a C header file string with macros defining base addresses for each slave.
+
+    Args:
+        generator (BusGenerator): The BusGenerator instance with processed slaves.
+        bus_yaml_file (str): The YAML file name used, for generating the header guard.
+
+    Returns:
+        str: The C header file content.
+    """
+    output_header_filename = bus_yaml_file
+    if output_header_filename.lower().endswith(".yaml"):
+        output_header_filename = output_header_filename[:-5] + ".h"
+    elif output_header_filename.lower().endswith(".yml"):
+        output_header_filename = output_header_filename[:-4] + ".h"
+    else:
+        output_header_filename += ".h"
+    header_guard = "__" + os.path.basename(output_header_filename).replace(".", "_").upper() + "__"
+    lines: List[str] = []
+    lines.append(f"#ifndef {header_guard}")
+    lines.append(f"#define {header_guard}")
+    lines.append("")
+    for slave in generator.processed_slaves:
+        macro_name = slave.name.upper() + "_BASE"
+        base_addr_c = convert_base_address_to_c_format(slave.base_address)
+        lines.append(f"#define {macro_name} {base_addr_c}")
+    lines.append("")
+    lines.append(f"#endif // {header_guard}")
+    return "\n".join(lines)
 
 def generate_command(args: argparse.Namespace) -> None:
     """Executes the generate command.
@@ -498,7 +547,37 @@ def generate_command(args: argparse.Namespace) -> None:
     generator = BusGenerator(bus_slaves, ip_library)
     verilog_code = generator.generate_verilog()
     wrapper_code = generate_wrapper(verilog_code)
-    print(wrapper_code)
+    # Determine output file name by replacing .yaml/.yml with .v
+    output_filename = bus_yaml_file
+    if output_filename.lower().endswith(".yaml"):
+        output_filename = output_filename[:-5] + ".v"
+    elif output_filename.lower().endswith(".yml"):
+        output_filename = output_filename[:-4] + ".v"
+    else:
+        output_filename += ".v"
+    try:
+        with open(output_filename, "w") as out_f:
+            out_f.write(wrapper_code)
+        logging.info(f"Generated Verilog written to {output_filename}")
+    except Exception as e:
+        logging.error(f"Failed to write output file {output_filename}: {e}")
+        sys.exit(1)
+
+    header_code = generate_c_header(generator, bus_yaml_file)
+    output_header_filename = bus_yaml_file
+    if output_header_filename.lower().endswith(".yaml"):
+        output_header_filename = output_header_filename[:-5] + ".h"
+    elif output_header_filename.lower().endswith(".yml"):
+        output_header_filename = output_header_filename[:-4] + ".h"
+    else:
+        output_header_filename += ".h"
+    try:
+        with open(output_header_filename, "w") as header_f:
+            header_f.write(header_code)
+        logging.info(f"Generated C header written to {output_header_filename}")
+    except Exception as e:
+        logging.error(f"Failed to write header file {output_header_filename}: {e}")
+        sys.exit(1)
 
 
 def list_command(args: argparse.Namespace) -> None:
