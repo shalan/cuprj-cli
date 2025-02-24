@@ -1,3 +1,19 @@
+/*
+  A Programmable Interrupt COntroller (PIC) for Caravel User's Project
+  
+  - Register Map & WB Interface: 
+    0x00: 8‑bit Pending Register (read‑only)
+    0x04: 8‑bit Interrupt Enable Register (read/write)
+    0x08: 32‑bit Packed Priority Register (read/write, with eight 4‑bit fields)
+    0x0C: Global Interrupt Control Register (read/write; bit 0 = global enable)
+    0x10: Interrupt Acknowledge Register (write‑only; writing a ‘1’ clears the corresponding pending bit)
+    0x14: Highest IRQ Register (read‑only; contains the computed 3‑bit highest priority interrupt ID)
+  - Priority Encoder:
+    For each interrupt that is both pending and enabled (and when global interrupts are active), 
+    it compares the 4‑bit priority value (from the packed priority register). The interrupt with 
+    the lowest numerical value is selected.
+*/
+
 module wb_pic_8 (
     input         clk,
     input         rst,

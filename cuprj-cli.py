@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+# Caravel User's Project CLI
+# It can be used to create and connect a user's project out of EF marketplace IPs.
+#
+# Authors: CHatGPT and Mohamed Shalan ;)
+
 import sys
 import os
 import json
