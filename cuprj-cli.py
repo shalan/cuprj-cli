@@ -18,7 +18,6 @@ logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
 DEFAULT_IPS_URL: str = "https://raw.githubusercontent.com/shalan/cuprj-cli/refs/heads/main/ip-lib.json"
 
-
 @dataclass
 class ExternalInterface:
     """Represents an external interface for an IP slave.
@@ -242,7 +241,7 @@ def parse_bus_slaves(data: Dict[str, Any]) -> BusSlaves:
 class BusGenerator:
     """Generates Verilog code for the Wishbone bus module."""
 
-    def __init__(self, bus_slaves: BusSlaves, ip_library: IPLibrary) -> None:
+    def __init__(self, bus_slaves: BusSlaves, ip_library: IPLibrary, has_pic:bool) -> None:
         """
         Args:
             bus_slaves (BusSlaves): Parsed bus slaves configuration.
@@ -250,6 +249,7 @@ class BusGenerator:
         """
         self.bus_slaves = bus_slaves.slaves
         self.ip_library = ip_library
+        self.has_pic = has_pic
         self.processed_slaves: List[ProcessedSlave] = []
         self._process_slaves()
 
@@ -258,26 +258,32 @@ class BusGenerator:
         base_addr_offset = 0x10000
         ip_dict = self.ip_library.ip_dict
         for idx, slave in enumerate(self.bus_slaves):
-            if slave.type not in ip_dict:
+            if slave.type not in ip_dict and slave.type != "wb_pic_8":
                 logging.error(f"Slave type '{slave.type}' for slave '{slave.name}' not found in IP library.")
                 sys.exit(1)
-            lib_entry = ip_dict[slave.type]
-            info = lib_entry.info
-            if not any(b.upper() in {"WB", "GENERIC"} for b in info.bus):
-                logging.warning(f"IP '{slave.type}' (for slave '{slave.name}') does not support WB (bus: {info.bus}). Using 0 cell count.")
-                cell_count = 0
+            if slave.type != "wb_pic_8":
+                lib_entry = ip_dict[slave.type]
+                info = lib_entry.info
+                if not any(b.upper() in {"WB", "GENERIC"} for b in info.bus):
+                    logging.warning(f"IP '{slave.type}' (for slave '{slave.name}') does not support WB (bus: {info.bus}). Using 0 cell count.")
+                    cell_count = 0
+                else:
+                    cell_count = 0
+                    for entry in info.cell_count:
+                        if "WB" in entry:
+                            try:
+                                cell_count = int(entry["WB"]) if str(entry["WB"]).isdigit() else 0
+                            except Exception:
+                                cell_count = 0
+                            break
+                if slave.irq is not None and lib_entry.flags is None:
+                    logging.error(f"Slave '{slave.name}' of type '{slave.type}' specifies IRQ but library entry lacks 'flags'.")
+                    sys.exit(1)
+                external_interface=lib_entry.external_interface
             else:
-                cell_count = 0
-                for entry in info.cell_count:
-                    if "WB" in entry:
-                        try:
-                            cell_count = int(entry["WB"]) if str(entry["WB"]).isdigit() else 0
-                        except Exception:
-                            cell_count = 0
-                        break
-            if slave.irq is not None and lib_entry.flags is None:
-                logging.error(f"Slave '{slave.name}' of type '{slave.type}' specifies IRQ but library entry lacks 'flags'.")
-                sys.exit(1)
+                cell_count = 500
+                external_interface = None
+
             base_address = slave.base_address or f"32'h{hex(base_addr_start + idx * base_addr_offset)[2:].upper()}"
             io_pins_converted = slave.convert_io_pins()
             processed = ProcessedSlave(
@@ -287,11 +293,11 @@ class BusGenerator:
                 io_pins=io_pins_converted,
                 irq=slave.irq,
                 cell_count=cell_count,
-                external_interface=lib_entry.external_interface
+                external_interface=external_interface
             )
             self.processed_slaves.append(processed)
 
-    def generate_verilog(self) -> str:
+    def generate_verilog(self, has_pic) -> str:
         total_wb_cell_count = sum(slave.cell_count for slave in self.processed_slaves)
         io_oen_assignments: Dict[int, int] = {}
         lines: List[str] = []
@@ -325,7 +331,27 @@ class BusGenerator:
         for idx, slave in enumerate(self.processed_slaves):
             lines.append(f"    assign cs{idx} = ((wb_adr >= {slave.base_address}) && (wb_adr < ({slave.base_address} + SLAVE_ADDR_SIZE))) ? 1'b1 : 1'b0;")
         lines.append("")
+        if has_pic:
+            lines.append(f"    wire [9:0] pic_irq;")
+            lines.append(f"    assign pic_irq[1:0] = user_irq[1:0];\n")
+            
+            lines.append(f"    // Instantiate the PIC")
+            lines.append(f"    wb_pic_8 PIC (")
+            lines.append(f"          .clk(wb_clk),")
+            lines.append(f"          .rst(wb_rst),")
+            lines.append(f"          .wb_addr(wb_adr),")
+            lines.append(f"          .wb_wdata(wb_dat_i),")
+            lines.append(f"          .wb_we(wb_we),")
+            lines.append(f"          .wb_stb(wb_stb),")
+            lines.append(f"          .wb_rdata(slave0_dat),")
+            lines.append(f"          .wb_ack(slave0_ack),")
+            lines.append(f"          .int_in(pic_irq[9:2]),")
+            lines.append(f"          .irq(user_irq[2])")
+            lines.append(f"    );")
+
         for idx, slave in enumerate(self.processed_slaves):
+            if slave.type == "wb_pic_8":
+                continue
             lines.append(f"    // Instantiate slave {slave.name} of type {slave.type}_WB")
             inst_lines: List[str] = []
             inst_lines.append(f".clk_i(wb_clk)")
@@ -342,39 +368,53 @@ class BusGenerator:
                 iface_name: str = iface.name
                 port_name: str = iface.port
                 direction: str = iface.direction.lower()
+                skip_port = False
                 if iface_name not in slave.io_pins:
-                    logging.error(f"Slave '{slave.name}' requires external interface '{iface_name}' but no mapping provided in io_pins.")
-                    sys.exit(1)
-                try:
-                    pin_start: int = int(slave.io_pins[iface_name])
-                except ValueError:
-                    logging.error(f"I/O pin for interface '{iface_name}' in slave '{slave.name}' must be an integer.")
-                    sys.exit(1)
-                pin_end: int = pin_start + iface.width - 1
-                if not all(0 <= p <= 37 for p in range(pin_start, pin_end + 1)):
-                    logging.error(f"I/O pins from {pin_start} to {pin_end} for interface '{iface_name}' in slave '{slave.name}' are out of range (0-37).")
-                    sys.exit(1)
-                if direction == "input":
-                    inst_lines.append(f".{port_name}(io_in[{pin_end}:{pin_start}])")
-                    for p in range(pin_start, pin_end + 1):
-                        io_oen_assignments.setdefault(p, 0)
-                elif direction == "output":
-                    if iface.output_control is True:
-                        inst_lines.append(f".{port_name}(io_oen[{pin_end}:{pin_start}])")
-                        for p in range(pin_start, pin_end + 1):
-                            io_oen_assignments[p]= 2
+                    if direction == "input":
+                        inst_lines.append(f".{port_name}(1'b0)")
+                        skip_port = True
                     else:
-                        inst_lines.append(f".{port_name}(io_out[{pin_end}:{pin_start}])")
+                        logging.error(f"Slave '{slave.name}' requires external interface '{iface_name}' but no mapping provided in io_pins.")
+                        sys.exit(1)
+                if not skip_port:
+                    try:
+                        pin_start: int = int(slave.io_pins[iface_name])
+                    except ValueError:
+                        logging.error(f"I/O pin for interface '{iface_name}' in slave '{slave.name}' must be an integer.")
+                        sys.exit(1)
+                    pin_end: int = pin_start + iface.width - 1
+                    if not all(0 <= p <= 37 for p in range(pin_start, pin_end + 1)):
+                        logging.error(f"I/O pins from {pin_start} to {pin_end} for interface '{iface_name}' in slave '{slave.name}' are out of range (0-37).")
+                        sys.exit(1)
+                    if direction == "input":
+                        inst_lines.append(f".{port_name}(io_in[{pin_end}:{pin_start}])")
                         for p in range(pin_start, pin_end + 1):
-                            io_oen_assignments.setdefault(p, 1)
-                else:
-                    logging.error(f"Unknown direction '{direction}' for interface '{iface_name}' in slave '{slave.name}'.")
-                    sys.exit(1)
+                            io_oen_assignments.setdefault(p, 0)
+                    elif direction == "output":
+                        if iface.output_control is True:
+                            inst_lines.append(f".{port_name}(io_oen[{pin_end}:{pin_start}])")
+                            for p in range(pin_start, pin_end + 1):
+                                io_oen_assignments[p]= 2
+                        else:
+                            inst_lines.append(f".{port_name}(io_out[{pin_end}:{pin_start}])")
+                            for p in range(pin_start, pin_end + 1):
+                                io_oen_assignments.setdefault(p, 1)
+                    else:
+                        logging.error(f"Unknown direction '{direction}' for interface '{iface_name}' in slave '{slave.name}'.")
+                        sys.exit(1)
+            #print(f"{slave.name} - {has_pic}")
             if slave.irq is not None:
-                if not (0 <= slave.irq <= 2):
-                    logging.error(f"IRQ {slave.irq} for slave '{slave.name}' out of range (0-2).")
-                    sys.exit(1)
-                inst_lines.append(f".IRQ(user_irq[{slave.irq}])")
+                if has_pic == True:
+                    print(f"{slave.name}")
+                    if not (0 <= slave.irq <= 9):
+                        logging.error(f"IRQ {slave.irq} for slave '{slave.name}' out of range (0-9).")
+                        sys.exit(1)
+                    inst_lines.append(f".IRQ(pic_irq[{slave.irq}])")
+                else:
+                    if not (0 <= slave.irq <= 2):
+                        logging.error(f"IRQ {slave.irq} for slave '{slave.name}' out of range (0-2).")
+                        sys.exit(1)
+                    inst_lines.append(f".IRQ(user_irq[{slave.irq}])")
 
             lines.append(f"    {slave.type}_WB {slave.name} (")
             lines.append("        " + ",\n        ".join(inst_lines))
@@ -546,11 +586,12 @@ def generate_command(args: argparse.Namespace) -> None:
     except Exception as e:
         logging.error(f"Failed to load bus YAML file: {e}")
         sys.exit(1)
+    has_pic: bool = bus_data.get("PIC", False)
     ip_json = load_json_file(ip_library_source)
     bus_slaves = parse_bus_slaves(bus_data)
     ip_library = parse_ip_library(ip_json)
-    generator = BusGenerator(bus_slaves, ip_library)
-    verilog_code = generator.generate_verilog()
+    generator = BusGenerator(bus_slaves, ip_library, has_pic)
+    verilog_code = generator.generate_verilog(has_pic)
     wrapper_code = generate_wrapper(verilog_code)
     # Determine output file name by replacing .yaml/.yml with .v
     output_filename = bus_yaml_file
