@@ -1,0 +1,53 @@
+PIC: true
+slaves:
+  - name: PIC
+    type: wb_pic_8
+    base_address: "32'h300F0000"
+  - name: UART0
+    type: EF_UART
+    base_address: "32'h30000000"
+    io_pins:
+      rx: 12
+      tx: 13
+    irq: 0
+  - name: UART1
+    type: EF_UART
+    base_address: "32'h30010000"
+    io_pins:
+      rx: 14
+      tx: 15
+    irq: 1
+  - name: UART2
+    type: EF_UART
+    base_address: "32'h30020000"
+    io_pins:
+      rx: 16
+      tx: 17
+    irq: 2
+  - name: UART3
+    type: EF_UART
+    base_address: "32'h30030000"
+    io_pins:
+      rx: 18
+      tx: 19
+    irq: 3
+  - name: TMR0
+    type: EF_TMR32
+    base_address: "32'h30040000"
+    io_pins:
+      pwm0: 20
+      pwm1: 21
+  - name: TMR1
+    type: EF_TMR32
+    base_address: "32'h30050000"
+    io_pins:
+      pwm0: 22
+      pwm1: 23
+  - name: PORTA
+    type: EF_GPIO8
+    base_address: "32'h30060000"
+    io_pins:
+      io_in: 30
+      io_out: 30
+      io_oe: 30
+    irq: 4

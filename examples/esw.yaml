@@ -1,0 +1,32 @@
+slaves:
+  - name: UART0
+    type: EF_UART
+    base_address: "32'h30000000"
+    io_pins:
+      rx: 19
+      tx: 20
+    irq: 0
+  - name: TMR0
+    type: EF_TMR32
+    base_address: "32'h30010000"
+    io_pins:
+      pwm0: 11
+      pwm1: 12
+  - name: TMR1
+    type: EF_TMR32
+    base_address: "32'h30020000"
+    io_pins:
+      pwm0: 13
+      pwm1: 14
+  - name: TMR2
+    type: EF_TMR32
+    base_address: "32'h30030000"
+    io_pins:
+      pwm0: 15
+      pwm1: 16
+  - name: TMR3
+    type: EF_TMR32
+    base_address: "32'h30040000"
+    io_pins:
+      pwm0: 17
+      pwm1: 18
